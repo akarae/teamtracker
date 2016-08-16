@@ -23,6 +23,26 @@ public class ReportingDTO {
 
     private String status;
 
+    private String color;
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public String getTeamid() {
+        return teamid;
+    }
+
+    public void setTeamid(String teamid) {
+        this.teamid = teamid;
+    }
+
+    private String teamid;
+
     public int getSeq() {
         return seq;
     }

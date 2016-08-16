@@ -3,4 +3,14 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <!-- ICON COLORS -->
+    <color name="m_06ff00">#06FF00</color>
+    <color name="m_43bd00">#43BD00</color>
+    <color name="m_169fed">#169FED</color>
+    <color name="m_1919ab">#1919AB</color>
+    <color name="m_c720c9">#C720C9</color>
+    <color name="m_ecd900">#ECD900</color>
+    <color name="m_fc00ff">#FC00FF</color>
+    <color name="m_ff0000">#FF0000</color>
+    <color name="m_ff9c00">#FF9C00</color>
 </resources>

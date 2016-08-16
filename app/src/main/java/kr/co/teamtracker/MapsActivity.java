@@ -1,6 +1,9 @@
 package kr.co.teamtracker;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -18,19 +21,23 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -41,6 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import kr.co.teamtracker.utils.MemberInfo;
 import kr.co.teamtracker.utils.ReportingDTO;
 import kr.co.teamtracker.utils.ReportingService;
 import kr.co.teamtracker.utils.RoundImage;
@@ -54,46 +62,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     SQLiteHelper sqlHelper;
 
+    MyReceiver myReceiver;
+
+    LinearLayout llStatus;
+
+    List<Marker> markerList = new ArrayList<Marker>();
+
+    private boolean isInitialPostion = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
         setContentView(R.layout.activity_maps);
 
-//        // SQLite test
-        sqlHelper = new SQLiteHelper(MapsActivity.this, "table_reportings", null, SQLiteHelper.dbVersion);
-//
-//        ReportingDTO dto1 = new ReportingDTO();
-//        // rae
-//        dto1.setTokenid("00001");
-//        dto1.setLat(35.7893002);
-//        dto1.setLang(128.5985883);
-//        dto1.setCallsign("akarae");
-//
-//        sqlHelper.insReporting(dto1);
-//
-//        // yaong
-//        ReportingDTO dto2 = new ReportingDTO();
-//        dto2.setTokenid("00002");
-//        dto2.setLat(35.787925);
-//        dto2.setLang(128.5936625);
-//        dto2.setCallsign("yaong");
-//        sqlHelper.insReporting(dto2);
-//
-//        // bbong
-//        ReportingDTO dto3 = new ReportingDTO();
-//        dto3.setTokenid("00003");
-//        dto3.setLat(35.7978644);
-//        dto3.setLang(128.6154815);
-//        dto3.setCallsign("bbong");
-//        sqlHelper.insReporting(dto3);
+        llStatus = (LinearLayout) findViewById(R.id.ll_status);
 
+        // SQLite test
+        sqlHelper = new SQLiteHelper(MapsActivity.this, null, SQLiteHelper.dbVersion);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
+
+
 
 
     /**
@@ -115,144 +108,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                                     @Override
                                                     public boolean onMyLocationButtonClick() {
 
-                                                        LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+                                                        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                                                         Criteria criteria = new Criteria();
                                                         Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
-
-//                                                        if (location != null) {
-//                                                            LatLng lastPosition = new LatLng(location.getLatitude(), location.getLongitude());
-//                                                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastPosition, 14));
-//                                                        }
 
                                                         return false;
                                                     }
                                                 }
         );
-
-
-        // this is my sweet hometown!!
-        Double dLat = 35.8041311;
-        Double dLang = 128.6239454;
-
-        LatLng positionTop = new LatLng(dLat, dLang);
-
-//        // 양지마을입구
-//        LatLng position1 = new LatLng(35.787925, 128.5936625);
-//        Bitmap bitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.m_2e98f3);
-//        bitmap1 = bitmap1.copy(Bitmap.Config.ARGB_8888,true);
-//        Canvas canvas1 = new Canvas(bitmap1);
-//        Paint paint1 = new Paint();
-//        paint1.setColor(Color.BLACK);
-//        paint1.setTextSize(24);
-//        paint1.setTypeface(Typeface.DEFAULT_BOLD);
-//        paint1.setTextAlign(Paint.Align.CENTER);
-//        paint1.setShadowLayer(2,2,2,Color.WHITE);
-//        canvas1.drawText("YAONG", canvas1.getWidth() / 2, 24, paint1);
-//        mMap.addMarker(new MarkerOptions()
-//                .position(position1)
-//                .icon(BitmapDescriptorFactory.fromBitmap(bitmap1))
-//                .title("this is my custom icon test")
-//                .snippet("it was too difficult to me" + "\n" + "but i did it")
-//                .anchor(0.5f, 0.83f));
-//
-//        // 가창댐
-//        LatLng position2 = new LatLng(35.7978644, 128.6154815);
-//        Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.m_30f242);
-////        bitmap2 = Bitmap.createScaledBitmap(bitmap2, bitmap2.getWidth()/2,bitmap2.getHeight()/2, false);
-//        bitmap2 = bitmap2.copy(Bitmap.Config.ARGB_8888,true);
-//        Canvas canvas2 = new Canvas(bitmap2);
-//        Paint paint2 = new Paint();
-//        paint2.setColor(Color.BLACK);
-//        paint2.setTextSize(24);
-//        paint2.setTypeface(Typeface.DEFAULT_BOLD);
-//        paint2.setTextAlign(Paint.Align.CENTER);
-//        paint2.setShadowLayer(2,2,2,Color.WHITE);
-//        canvas2.drawText("BBONG", canvas2.getWidth() / 2, 24, paint2);
-//        mMap.addMarker(new MarkerOptions()
-//                .position(position2)
-//                .icon(BitmapDescriptorFactory.fromBitmap(bitmap2))
-//                .title("this is my custom icon test")
-//                .snippet("it was too difficult to me" + "\n" + "but i did it")
-//                .anchor(0.5f, 0.83f));
-
-//        // 헐티로
-//        ReportingDTO retDTO = new ReportingDTO();
-//        retDTO = sqlHelper.getReporting("12345");
-//
-//        LatLng position3 = new LatLng(retDTO.getLat(), retDTO.getLang());
-//        Bitmap bitmap3 = BitmapFactory.decodeResource(getResources(), R.drawable.m_f030f2);
-//        bitmap3 = bitmap3.copy(Bitmap.Config.ARGB_8888, true);
-//        Canvas canvas3 = new Canvas(bitmap3);
-//        Paint paint3 = new Paint();
-//        paint3.setColor(Color.BLACK);
-//        paint3.setTextSize(24);
-//        paint3.setTypeface(Typeface.DEFAULT_BOLD);
-//        paint3.setTextAlign(Paint.Align.CENTER);
-//        paint3.setShadowLayer(2,2,2,Color.WHITE);
-//        canvas3.drawText(retDTO.getCallsign(), canvas3.getWidth() / 2, 24, paint3);
-//        mMap.addMarker(new MarkerOptions()
-//                .position(position3)
-//                .icon(BitmapDescriptorFactory.fromBitmap(bitmap3))
-//                .title("this is my custom icon test")
-//                .snippet(retDTO.getTokenid())
-//                .anchor(0.5f, 0.83f));
-//
-//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position3, 14));
-
-        // 헐티로
-        List<ReportingDTO> listDto = new ArrayList<ReportingDTO>();
-        listDto = sqlHelper.getReportingAll();
-
-        List<Marker> markerList = new ArrayList<Marker>();
-
-        String sTeamStatusView = new String();
-
-        for (int i = 0; i < listDto.size(); i++) {
-
-            ReportingDTO retDTO = listDto.get(i);
-            LatLng position = new LatLng(retDTO.getLat(), retDTO.getLang());
-            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.m_f030f2).copy(Bitmap.Config.ARGB_8888, true);
-            Canvas canvas = new Canvas(bitmap);
-            Paint paint = new Paint();
-            paint.setColor(Color.BLACK);
-            paint.setTextSize(24);
-            paint.setTypeface(Typeface.DEFAULT_BOLD);
-            paint.setTextAlign(Paint.Align.CENTER);
-            paint.setShadowLayer(2, 2, 2, Color.WHITE);
-            canvas.drawText(retDTO.getCallsign(), canvas.getWidth() / 2, 24, paint);
-
-            Marker marker = mMap.addMarker(new MarkerOptions()
-                    .position(position)
-                    .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
-                    .title(retDTO.getCallsign() + "님의 정보")
-                    .snippet("report time : " + retDTO.getReporttime() + "\n"
-                             + "speed : " + retDTO.getSpeed() + "\n"
-                             + "direction : " + retDTO.getDirection() + "\n"
-                             + "status : " + retDTO.getStatus())
-                    .anchor(0.5f, 0.83f));
-            markerList.add(marker);
-
-            sTeamStatusView += retDTO.getCallsign() + " : " + retDTO.getReporttime() + "\n";
-
-            if (i == 0) {
-                positionTop = position;
-            }
-        }
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(positionTop, 14));
-
-
-        RelativeLayout layout = (RelativeLayout) findViewById(R.id.map_layout);
-
-        //TextView 생성
-        TextView tvTeamStatus = (TextView) findViewById(R.id.tv_teamstatus);
-        tvTeamStatus.setText("[Team Status View]\n" + sTeamStatusView);
-        ;
-        tvTeamStatus.setTextSize(12);
-        tvTeamStatus.setTextColor(Color.BLACK);
-        tvTeamStatus.setShadowLayer(2, 2, 2, Color.WHITE);
-
-        //부모 뷰에 추가
-//        layout.addView(tvTeamStatus);
 
         // 정보창 Customizing
         mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
@@ -285,5 +148,198 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
+        updatePosition();
+
+    }
+
+    @Override
+    protected void onStart() {
+        // TODO Auto-generated method stub
+
+        //Register BroadcastReceiver
+        //to receive event from our service
+        myReceiver = new MyReceiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ReportingService.MY_ACTION);
+        registerReceiver(myReceiver, intentFilter);
+
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        // TODO Auto-generated method stub
+        unregisterReceiver(myReceiver);
+        super.onStop();
+    }
+
+    // 브로드캐스트 리시버
+    private class MyReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context arg0, Intent arg1) {
+
+            String reportResult = arg1.getStringExtra("reportResult");
+
+            if (!reportResult.equals("success")) {
+                Toast.makeText(MapsActivity.this, reportResult, Toast.LENGTH_LONG).show();
+            }
+
+            // 서버 전송여부와 무관하게 화면 UI는 갱신처리
+            updatePosition();
+        }
+    }
+
+    public void updatePosition() {
+
+        //
+        if (markerList != null && markerList.size() > 0) {
+            // 삭제 후 재설정
+            for (int i = 0; i < markerList.size(); i++) {
+                markerList.get(i).remove();
+            }
+
+            markerList.clear();
+        }
+
+        // this is my sweet hometown!!
+        Double dLat = 35.8041311;
+        Double dLang = 128.6239454;
+        LatLng positionTop = new LatLng(dLat, dLang);
+
+        MemberInfo memberInfo = (MemberInfo) getApplicationContext();
+
+        List<ReportingDTO> listDto = new ArrayList<ReportingDTO>();
+        listDto = sqlHelper.getReportingByTeamid(memberInfo.getTeamid());
+
+        String sTeamStatusView = new String();
+
+        llStatus.removeAllViews();
+
+        TextView tvStatusTitle = new TextView(MapsActivity.this);
+        tvStatusTitle.setPadding(10, 2, 2, 10);
+        tvStatusTitle.setTextSize(12);
+        tvStatusTitle.setTextColor(Color.BLACK);
+        tvStatusTitle.setText("** Unit Status View **");
+        llStatus.addView(tvStatusTitle);
+
+        int imgId       = R.drawable.m_169fed;
+        int textColorId = R.color.m_169fed;
+
+        for (int i = 0; i < listDto.size(); i++) {
+
+            ReportingDTO retDTO = listDto.get(i);
+
+            // icon / text color setting start
+            if (retDTO.getColor().equals("06ff00") ) {
+                imgId       = R.drawable.m_06ff00;
+                textColorId = R.color.m_06ff00;
+            }
+            if (retDTO.getColor().equals("43bd00") ) {
+                imgId       = R.drawable.m_43bd00;
+                textColorId = R.color.m_43bd00;
+            }
+            if (retDTO.getColor().equals("169fed") ) {
+                imgId       = R.drawable.m_169fed;
+                textColorId = R.color.m_169fed;
+            }
+            if (retDTO.getColor().equals("1919ab") ) {
+                imgId       = R.drawable.m_1919ab;
+                textColorId = R.color.m_1919ab;
+            }
+            if (retDTO.getColor().equals("c720c9") ) {
+                imgId       = R.drawable.m_c720c9;
+                textColorId = R.color.m_c720c9;
+            }
+            if (retDTO.getColor().equals("ecd900") ) {
+                imgId       = R.drawable.m_ecd900;
+                textColorId = R.color.m_ecd900;
+            }
+            if (retDTO.getColor().equals("fc00ff") ) {
+                imgId       = R.drawable.m_fc00ff;
+                textColorId = R.color.m_fc00ff;
+            }
+            if (retDTO.getColor().equals("ff0000") ) {
+                imgId       = R.drawable.m_ff0000;
+                textColorId = R.color.m_ff0000;
+            }
+            if (retDTO.getColor().equals("ff9c00") ) {
+                imgId       = R.drawable.m_ff9c00;
+                textColorId = R.color.m_ff9c00;
+            }
+            // icon / text color setting end
+
+
+            // location setting
+            LatLng position = new LatLng(retDTO.getLat(), retDTO.getLang());
+
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), imgId).copy(Bitmap.Config.ARGB_8888, true);
+
+            bitmap = Bitmap.createScaledBitmap(bitmap, bitmap.getWidth() / 2, bitmap.getHeight() / 2, false);
+
+            Canvas canvas = new Canvas(bitmap);
+            Paint paint = new Paint();
+            paint.setColor(Color.BLACK);
+            paint.setTextSize(24);
+            paint.setTypeface(Typeface.DEFAULT_BOLD);
+            paint.setTextAlign(Paint.Align.CENTER);
+            paint.setShadowLayer(2, 2, 2, Color.WHITE);
+            canvas.drawText(retDTO.getCallsign(), canvas.getWidth() / 2, 24, paint);
+
+            Marker marker = mMap.addMarker(new MarkerOptions()
+                    .position(position)
+                    .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
+                    .title(retDTO.getCallsign() + "님의 정보")
+                    .snippet("report time : " + retDTO.getReporttime() + "\n"
+                           + "speed : "       + retDTO.getSpeed() + "\n"
+                           + "direction : "   + retDTO.getDirection() + "\n"
+                           + "status : "      + retDTO.getStatus())
+                    .anchor(0.5f, 0.83f));
+            markerList.add(marker);
+
+
+
+            if (i == 0) {
+                positionTop = position;
+            }
+
+            if (retDTO.getReporttime() != null && !retDTO.getReporttime().equals("")
+                    && !retDTO.getReporttime().equals("null") && retDTO.getReporttime().length() > 0) {
+                sTeamStatusView += "■ " + retDTO.getCallsign() + " : " + retDTO.getReporttime().substring(11, retDTO.getReporttime().length()) + "\n";
+
+                TextView tvStatus = new TextView(MapsActivity.this);
+                tvStatus.setPadding(20, 2, 2, 5);
+                tvStatus.setTextColor(ContextCompat.getColor(getApplicationContext(), textColorId));
+                tvStatus.setShadowLayer(1, 1, 1, Color.WHITE);
+                tvStatus.setTextSize(12);
+                tvStatus.setText(sTeamStatusView);
+                llStatus.addView(tvStatus); // add TextView to LinearLayout
+            }
+        }
+
+        if (isInitialPostion) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(positionTop, 14));
+            isInitialPostion = false;
+        } else {
+//            mMap.moveCamera(CameraUpdateFactory.newLatLng(positionTop));
+        }
+
+    }
+
+    protected int getImgResourceID(String color) {
+
+        int imgResourceID = R.drawable.m_169fed;
+
+        if (color.equals("m_06ff00")) imgResourceID = R.drawable.m_06ff00;
+        if (color.equals("m_43bd00")) imgResourceID = R.drawable.m_43bd00;
+        if (color.equals("m_169fed")) imgResourceID = R.drawable.m_169fed;
+        if (color.equals("m_1919ab")) imgResourceID = R.drawable.m_1919ab;
+        if (color.equals("m_c720c9")) imgResourceID = R.drawable.m_c720c9;
+        if (color.equals("m_ecd900")) imgResourceID = R.drawable.m_ecd900;
+        if (color.equals("m_fc00ff")) imgResourceID = R.drawable.m_fc00ff;
+        if (color.equals("m_ff0000")) imgResourceID = R.drawable.m_ff0000;
+        if (color.equals("m_ff9c00")) imgResourceID = R.drawable.m_ff9c00;
+
+        return imgResourceID;
     }
 }

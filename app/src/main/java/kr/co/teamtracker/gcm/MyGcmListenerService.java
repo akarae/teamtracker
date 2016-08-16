@@ -46,52 +46,70 @@ public class MyGcmListenerService extends GcmListenerService {
         String sReporttime = new String();
         String sDirection = new String();
         String sSpeed = new String();
+        String sColor = "169fed";
+        String sFlag = "";
 
         try {
             JSONObject jsonObj = new JSONObject(data.getString("custom_key1"));
 
-            sTokenid = jsonObj.getString("tokenid");
-            sCallsign = jsonObj.getString("callsign");
-            sTeamid = jsonObj.getString("teamid");
-            sStatus = jsonObj.getString("status");
-            sLat = jsonObj.getDouble("lat");
-            sLang = jsonObj.getDouble("lang");
+            sTokenid    = jsonObj.getString("tokenid");
+            sCallsign   = jsonObj.getString("callsign");
+            sTeamid     = jsonObj.getString("teamid");
+            sStatus     = jsonObj.getString("status");
+            sLat        = jsonObj.getDouble("lat");
+            sLang       = jsonObj.getDouble("lang");
             sReporttime = jsonObj.getString("reporttime");
-            sDirection = jsonObj.getString("direction");
-            sSpeed = jsonObj.getString("speed");
+            sDirection  = jsonObj.getString("direction");
+            sSpeed      = jsonObj.getString("speed");
+            sColor      = jsonObj.getString("color");
+            sFlag       = jsonObj.getString("flag"); // R:Reporting, T:TeamRegist
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        Log.d(TAG, "From: "    + from);
-        Log.d(TAG, "Title: "   + title);
-        Log.d(TAG, "Message: " + message);
-        Log.d(TAG, "callsign: " + sCallsign);
-        Log.d(TAG, "sTokenid: " + sTokenid);
-        Log.d(TAG, "sLat: " + sLat);
-        Log.d(TAG, "sLang: " + sLang);
+        Log.d(TAG, "From: "        + from);
+        Log.d(TAG, "Title: "       + title);
+        Log.d(TAG, "Message: "     + message);
+        Log.d(TAG, "callsign: "    + sCallsign);
+        Log.d(TAG, "teamid: "      + sTeamid);
+        Log.d(TAG, "sTokenid: "    + sTokenid);
+        Log.d(TAG, "sLat: "        + sLat);
+        Log.d(TAG, "sLang: "       + sLang);
         Log.d(TAG, "sReporttime: " + sReporttime);
-        Log.d(TAG, "sDirection: " + sDirection);
-        Log.d(TAG, "sSpeed: " + sSpeed);
-        Log.d(TAG, "sStatus: " + sStatus);
+        Log.d(TAG, "sDirection: "  + sDirection);
+        Log.d(TAG, "sSpeed: "      + sSpeed);
+        Log.d(TAG, "sStatus: "     + sStatus);
+        Log.d(TAG, "sColor:"       + sColor);
 
         // GCM으로 받은 메세지를 디바이스에 알려주는 sendNotification()을 호출한다.
-        sendNotification(title, message);
+        // todo
+        // 신규멤버가 들어올 때만 noti 처리하도록 분기
+//        sendNotification(title, message);
 
         // SQLite Update 처리
-        SQLiteHelper sqlHelper = new SQLiteHelper(MyGcmListenerService.this, "table_reportings", null, SQLiteHelper.dbVersion);
+        SQLiteHelper sqlHelper = new SQLiteHelper(MyGcmListenerService.this, null, SQLiteHelper.dbVersion);
 
+        // Reporting
         ReportingDTO dto = new ReportingDTO();
         dto.setTokenid(sTokenid);
+        dto.setTeamid(sTeamid);
+        dto.setCallsign(sCallsign);
         dto.setLat(sLat);
         dto.setLang(sLang);
         dto.setReporttime(sReporttime);
         dto.setSpeed(sSpeed);
         dto.setDirection(sDirection);
         dto.setStatus(sStatus);
+        dto.setColor(sColor);
 
-        sqlHelper.setReporting(dto);
+        if (sFlag.equals("R")) {
+            sqlHelper.insReporting(dto);
+        }
+
+        if (sFlag.equals("T")) {
+            sqlHelper.insTeam(dto);
+        }
     }
 
 
@@ -109,13 +127,15 @@ public class MyGcmListenerService extends GcmListenerService {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent, PendingIntent.FLAG_ONE_SHOT);
 
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        long[] vibratePattern =  new long[] { -1 };
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.m_2e98f3)
+                .setSmallIcon(R.drawable.m_169fed)
                 .setContentTitle(title)
                 .setContentText(message)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
+                .setVibrate(vibratePattern)
                 .setContentIntent(pendingIntent);
 
         NotificationManager notificationManager =

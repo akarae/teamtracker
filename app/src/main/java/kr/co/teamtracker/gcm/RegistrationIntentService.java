@@ -8,10 +8,18 @@ import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 
 import java.io.IOException;
 
+import cz.msebera.android.httpclient.Header;
+import kr.co.teamtracker.MapsActivity;
 import kr.co.teamtracker.R;
+import kr.co.teamtracker.httpclient.GCMHttpClient;
+import kr.co.teamtracker.utils.MemberInfo;
+import kr.co.teamtracker.utils.ReportingDTO;
+import kr.co.teamtracker.utils.SQLiteHelper;
 
 /**
  * Created by saltfactory on 6/8/15.
@@ -19,6 +27,8 @@ import kr.co.teamtracker.R;
 public class RegistrationIntentService extends IntentService {
 
     private static final String TAG = "RegistrationIntentService";
+
+    SQLiteHelper sqlHelper;
 
     public RegistrationIntentService() {
         super(TAG);
@@ -32,11 +42,14 @@ public class RegistrationIntentService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
 
+        // SQLite test
+        sqlHelper = new SQLiteHelper(RegistrationIntentService.this, null, SQLiteHelper.dbVersion);
+
         Log.i(TAG, "ResitrationIntentService called!!!");
 
         // GCM Instance ID의 토큰을 가져오는 작업이 시작되면 LocalBoardcast로 GENERATING 액션을 알려 ProgressBar가 동작하도록 한다.
-        LocalBroadcastManager.getInstance(this)
-                .sendBroadcast(new Intent(QuickstartPreferences.REGISTRATION_GENERATING));
+//        LocalBroadcastManager.getInstance(this)
+//                .sendBroadcast(new Intent(QuickstartPreferences.REGISTRATION_GENERATING));
 
         // GCM을 위한 Instance ID를 가져온다.
         InstanceID instanceID = InstanceID.getInstance(this);
@@ -51,6 +64,32 @@ public class RegistrationIntentService extends IntentService {
                 token = instanceID.getToken(default_senderId, scope, null);
 
                 Log.i(TAG, "GCM Registration Token: " + token);
+
+                // 전역변수 선언
+                MemberInfo memberInfo = (MemberInfo) getApplicationContext();
+                memberInfo.setTokeinid(token);
+
+                // SQLite 등록처리 및 WebSerrver 등록
+                ReportingDTO reportingDTO = new ReportingDTO();
+                reportingDTO.setTokenid(token);
+                reportingDTO.setCallsign(memberInfo.getCallsign());
+                reportingDTO.setTeamid(memberInfo.getTeamid());
+                reportingDTO.setStatus(memberInfo.getStatus());
+                reportingDTO.setColor(memberInfo.getColor());
+
+                // 조회결과가 존재하지 않는 경우에만 insert
+                ReportingDTO retDTO = sqlHelper.getReporting(token);
+                if (retDTO == null || retDTO.getCallsign() == null) {
+
+                    sqlHelper.insReporting(reportingDTO);
+
+                // 조회결과가 존재하는 경우에는 update
+                } else {
+
+                    sqlHelper.setReporting(reportingDTO);
+
+                }
+
             }
         } catch (IOException e) {
             e.printStackTrace();

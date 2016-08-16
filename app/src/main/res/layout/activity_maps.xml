@@ -12,16 +12,13 @@
         tools:context="kr.co.teamtracker.MapsActivity"
         tools:layout="@layout/abc_expanded_menu_layout" />
 
-    <TextView
-        android:layout_width="150dp"
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="130dp"
         android:layout_height="200dp"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Medium Text"
-        android:id="@+id/tv_teamstatus"
-        android:layout_marginTop="20dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_marginLeft="10dp"
-        android:background="#96f1f1f1"
-        android:padding="5dp" />
+        android:id="@+id/ll_status"
+        android:background="#82ffffff"></LinearLayout>
+
 </RelativeLayout>
