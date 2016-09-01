@@ -20,9 +20,6 @@ import kr.co.teamtracker.R;
 import kr.co.teamtracker.utils.ReportingDTO;
 import kr.co.teamtracker.utils.SQLiteHelper;
 
-/**
- * Created by saltfactory on 6/8/15.
- */
 public class MyGcmListenerService extends GcmListenerService {
 
     private static final String TAG = "MyGcmListenerService";
@@ -34,35 +31,44 @@ public class MyGcmListenerService extends GcmListenerService {
      */
     @Override
     public void onMessageReceived(String from, Bundle data) {
-        String title = data.getString("title");
+
+        String title   = data.getString("title");
         String message = data.getString("message");
 
-        String sTokenid = new String();
-        String sCallsign = new String();
-        String sTeamid = new String();
-        String sStatus = new String();
-        Double sLat = 0.0;
-        Double sLang = 0.0;
+        String sTokenid    = new String();
+        String sCallsign   = new String();
+        String sTeamid     = new String();
+        String sStatus     = new String();
+        Double sLat        = 0.0;
+        Double sLang       = 0.0;
         String sReporttime = new String();
-        String sDirection = new String();
-        String sSpeed = new String();
-        String sColor = "169fed";
-        String sFlag = "";
+        String sDirection  = new String();
+        String sSpeed      = new String();
+        String sColor      = "169fed";
+        String sFlag       = new String();
 
         try {
+
             JSONObject jsonObj = new JSONObject(data.getString("custom_key1"));
 
-            sTokenid    = jsonObj.getString("tokenid");
-            sCallsign   = jsonObj.getString("callsign");
-            sTeamid     = jsonObj.getString("teamid");
-            sStatus     = jsonObj.getString("status");
-            sLat        = jsonObj.getDouble("lat");
-            sLang       = jsonObj.getDouble("lang");
-            sReporttime = jsonObj.getString("reporttime");
-            sDirection  = jsonObj.getString("direction");
-            sSpeed      = jsonObj.getString("speed");
-            sColor      = jsonObj.getString("color");
-            sFlag       = jsonObj.getString("flag"); // R:Reporting, T:TeamRegist
+            sFlag       = jsonObj.getString("flag"); // R:Reporting, T:TeamRegist, D:TeamDelete
+
+            if (sFlag.equals("R")) { // R:Reporting, T:TeamRegist, D:TeamDelete
+                sTokenid    = jsonObj.getString("tokenid");
+                sCallsign   = jsonObj.getString("callsign");
+                sStatus     = jsonObj.getString("status");
+                sLat        = jsonObj.getDouble("lat");
+                sLang       = jsonObj.getDouble("lang");
+                sReporttime = jsonObj.getString("reporttime");
+                sDirection  = jsonObj.getString("direction");
+                sSpeed      = jsonObj.getString("speed");
+                sColor      = jsonObj.getString("color");
+            }
+
+            if (sFlag.equals("T") || sFlag.equals("D")) { // R:Reporting, T:TeamRegist, D:TeamDelete
+                sTokenid    = jsonObj.getString("tokenid");
+                sTeamid     = jsonObj.getString("teamid");
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -92,23 +98,34 @@ public class MyGcmListenerService extends GcmListenerService {
 
         // Reporting
         ReportingDTO dto = new ReportingDTO();
-        dto.setTokenid(sTokenid);
-        dto.setTeamid(sTeamid);
-        dto.setCallsign(sCallsign);
-        dto.setLat(sLat);
-        dto.setLang(sLang);
-        dto.setReporttime(sReporttime);
-        dto.setSpeed(sSpeed);
-        dto.setDirection(sDirection);
-        dto.setStatus(sStatus);
-        dto.setColor(sColor);
 
-        if (sFlag.equals("R")) {
+        if (sFlag.equals("R")) { // R:Reporting, T:TeamRegist, D:TeamDelete
+            dto.setTokenid(sTokenid);
+            dto.setTeamid(sTeamid);
+            dto.setCallsign(sCallsign);
+            dto.setLat(sLat);
+            dto.setLang(sLang);
+            dto.setReporttime(sReporttime);
+            dto.setSpeed(sSpeed);
+            dto.setDirection(sDirection);
+            dto.setStatus(sStatus);
+            dto.setColor(sColor);
+
             sqlHelper.insReporting(dto);
         }
 
-        if (sFlag.equals("T")) {
+        if (sFlag.equals("T")) { // R:Reporting, T:TeamRegist, D:TeamDelete
+            dto.setTokenid(sTokenid);
+            dto.setTeamid(sTeamid);
+
             sqlHelper.insTeam(dto);
+        }
+
+        if (sFlag.equals("D")) {
+            dto.setTokenid(sTokenid);
+            dto.setTeamid(sTeamid);
+
+            sqlHelper.delTeamOne(dto);
         }
     }
 

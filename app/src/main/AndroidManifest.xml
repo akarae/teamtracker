@@ -56,15 +56,15 @@
         </service>
         <!-- [END gcm_listener_service] -->
 
-
+        <!-- this will be delete -->
         <!-- [START instanceId_listener_service] -->
-        <service
+        <!-- service
             android:name=".gcm.MyInstanceIDListenerService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.gms.iid.InstanceID" />
             </intent-filter>
-        </service>
+        </service -->
         <!-- [END instanceId_listener_service] -->
 
 
@@ -92,7 +92,7 @@
         -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key" />
+            android:value="AIzaSyCvr_LNXaI5U-nZw8-X_Md9P2wtUkXtG5k" />
 
         <activity
             android:name=".MapsActivity"

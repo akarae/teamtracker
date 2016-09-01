@@ -2,19 +2,36 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'teamtrackerkey'
+            keyPassword 'eugene0611!'
+            storeFile file('D:/dev/keystore/akaraeKeyStore.jks')
+            storePassword 'eugene0611!'
+        }
+    }
     compileSdkVersion 23
     buildToolsVersion '23.0.2'
     defaultConfig {
         applicationId "kr.co.teamtracker"
-        minSdkVersion 16
-        targetSdkVersion 16
+        minSdkVersion 15
+        targetSdkVersion 15
         versionCode 1
         versionName "1.0"
+        signingConfig signingConfigs.config
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            debuggable false
+            zipAlignEnabled true
+            signingConfig signingConfigs.config
+        }
+        debug {
+            debuggable true
+            zipAlignEnabled true
+            signingConfig signingConfigs.config
         }
     }
     productFlavors {

@@ -1,4 +1,21 @@
 <resources>
     <string name="app_name">TeamTracker</string>
     <string name="title_activity_maps">TeamTracker_Map</string>
+    <string-array name="status_array">
+        <item>NORMAL</item>
+        <item>REFUEL</item>
+        <item>ENGAGE</item>
+        <item>EMERGENCY</item>
+        <item>HIJACK</item>
+        <item>RTB</item>
+    </string-array>
+
+    <string-array name="interval_array">
+        <item>10SEC</item>
+        <item>30SEC</item>
+        <item>1MIN</item>
+        <item>3MIN</item>
+        <item>5MIN</item>
+        <item>10MIN</item>
+    </string-array>
 </resources>

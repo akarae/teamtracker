@@ -70,11 +70,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private boolean isInitialPostion = true;
 
+    String mTeamId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_maps);
+
+        Intent intent = getIntent();
+        Bundle bundle = (Bundle) intent.getExtras();
+        mTeamId = (String) bundle.get("teamid");
 
         llStatus = (LinearLayout) findViewById(R.id.ll_status);
 
@@ -207,10 +213,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Double dLang = 128.6239454;
         LatLng positionTop = new LatLng(dLat, dLang);
 
-        MemberInfo memberInfo = (MemberInfo) getApplicationContext();
-
         List<ReportingDTO> listDto = new ArrayList<ReportingDTO>();
-        listDto = sqlHelper.getReportingByTeamid(memberInfo.getTeamid());
+        listDto = sqlHelper.getReportingByTeamid(mTeamId);
 
         String sTeamStatusView = new String();
 
@@ -220,7 +224,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         tvStatusTitle.setPadding(10, 2, 2, 10);
         tvStatusTitle.setTextSize(12);
         tvStatusTitle.setTextColor(Color.BLACK);
-        tvStatusTitle.setText("** Unit Status View **");
+        tvStatusTitle.setText("[" + mTeamId + "] Unit List");
         llStatus.addView(tvStatusTitle);
 
         int imgId       = R.drawable.m_169fed;
@@ -289,7 +293,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Marker marker = mMap.addMarker(new MarkerOptions()
                     .position(position)
                     .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
-                    .title(retDTO.getCallsign() + "님의 정보")
+                    .title(retDTO.getCallsign() + "'s Information")
                     .snippet("report time : " + retDTO.getReporttime() + "\n"
                            + "speed : "       + retDTO.getSpeed() + "\n"
                            + "direction : "   + retDTO.getDirection() + "\n"

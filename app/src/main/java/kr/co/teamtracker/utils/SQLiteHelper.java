@@ -326,4 +326,28 @@ Log.d(TAG, query);
 
         //db.close();
     }
+
+    // deleteAll
+    public void delTeamAll(String teamId) {
+
+        String query = "DELETE FROM table_team WHERE teamid = \"" + teamId + "\"";
+Log.d(TAG, query);
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.execSQL(query);
+        //db.close();
+    }
+
+    // deleteOne
+    public void delTeamOne(ReportingDTO dto) {
+
+        String query = "DELETE FROM table_team WHERE teamid = \"" + dto.getTeamid() + "\" " + "AND tokenid = \"" + dto.getTokenid() + "\"";
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.execSQL(query);
+        //db.close();
+    }
+
+
 }
