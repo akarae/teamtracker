@@ -1,18 +1,14 @@
 {
   "project_info": {
-    "project_id": "teamtracker-7202a",
     "project_number": "743107167585",
-    "name": "TeamTracker"
+    "project_id": "teamtracker-7202a"
   },
   "client": [
     {
       "client_info": {
         "mobilesdk_app_id": "1:743107167585:android:b4cfeb68b8dc9493",
-        "client_id": "android:kr.co.teamtracker",
-        "client_type": 1,
         "android_client_info": {
-          "package_name": "kr.co.teamtracker",
-          "certificate_hash": []
+          "package_name": "kr.co.teamtracker"
         }
       },
       "oauth_client": [],
@@ -21,16 +17,9 @@
         "analytics_service": {
           "status": 1
         },
-        "cloud_messaging_service": {
-          "status": 2,
-          "apns_config": []
-        },
         "appinvite_service": {
           "status": 1,
           "other_platform_oauth_client": []
-        },
-        "google_signin_service": {
-          "status": 1
         },
         "ads_service": {
           "status": 1
@@ -38,6 +27,5 @@
       }
     }
   ],
-  "client_info": [],
-  "ARTIFACT_VERSION": "1"
+  "configuration_version": "1"
 }

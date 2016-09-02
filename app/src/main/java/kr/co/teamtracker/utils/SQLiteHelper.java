@@ -20,7 +20,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 
     private static final String DBFilename = "teamtrackerdb";
 
-    public static final int dbVersion = 13;
+    public static final int dbVersion = 14;
 
     // 안드로이드에서 SQLite 데이터 베이스를 쉽게 사용할 수 있도록 도와주는 클래스
     public SQLiteHelper(Context context, CursorFactory factory, int version) {
@@ -35,7 +35,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
         // 테이블 생성하는 코드를 작성한다
         String sql1 = "CREATE TABLE table_reportings ("
                 //+ "seq integer primary key autoincrement, "
-                + "tokenid    text primary key,"
+                + "uuid       text primary key,"
                 + "lat        double, "
                 + "lang       double, "
                 + "callsign   text, "
@@ -47,14 +47,14 @@ public class SQLiteHelper extends SQLiteOpenHelper {
                 + "color      text )";
         db.execSQL(sql1);
 
-        String sql2 = "CREATE UNIQUE INDEX idx_reportings ON table_reportings (tokenid)";
+        String sql2 = "CREATE UNIQUE INDEX idx_reportings ON table_reportings (uuid)";
         db.execSQL(sql2);
 
         String sql3 = "CREATE TABLE table_team("
                 //+ "seq integer primary key autoincrement, "
                 + "teamkey text primarykey,"
                 + "teamid  text,"
-                + "tokenid text)";
+                + "uuid    text)";
         db.execSQL(sql3);
 
         String sql4 = "CREATE UNIQUE INDEX idx_team ON table_team (teamkey)";
@@ -94,28 +94,13 @@ public class SQLiteHelper extends SQLiteOpenHelper {
     // insert
     public void insReporting(ReportingDTO reportingDTO) {
 
-//        ContentValues values = new ContentValues();
-//        values.put("tokenid",    reportingDTO.getTokenid());
-//        values.put("callsign",   reportingDTO.getCallsign());
-//        values.put("lat",        reportingDTO.getLat());
-//        values.put("lang",       reportingDTO.getLang());
-//        values.put("reporttime", reportingDTO.getReporttime());
-//        values.put("speed",      reportingDTO.getSpeed());
-//        values.put("direction",  reportingDTO.getDirection());
-//        values.put("status",     reportingDTO.getStatus());
-////        values.put("teamid",     reportingDTO.getTeamid());
-//        values.put("color", reportingDTO.getColor());
-//
         SQLiteDatabase db = this.getWritableDatabase();
-//
-//        long lRet = db.insert("table_reportings", null, values);
-//        Log.d(TAG, "lRet is : " + lRet);
 
         String query = "INSERT OR REPLACE INTO table_reportings "
-                + "(tokenid, callsign, lat, lang, reporttime, speed, direction, status, color) "
+                + "(uuid, callsign, lat, lang, reporttime, speed, direction, status, color) "
                 + "VALUES "
                 + "(\""
-                + reportingDTO.getTokenid() + "\", \""
+                + reportingDTO.getUuid() + "\", \""
                 + reportingDTO.getCallsign() + "\", \""
                 + reportingDTO.getLat() + "\", \""
                 + reportingDTO.getLang() + "\", \""
@@ -124,7 +109,6 @@ public class SQLiteHelper extends SQLiteOpenHelper {
                 + reportingDTO.getDirection() + "\", \""
                 + reportingDTO.getStatus() + "\", \""
                 + reportingDTO.getColor() + "\")";
-Log.d(TAG, query);
 
         db.execSQL(query);
 
@@ -142,22 +126,21 @@ Log.d(TAG, query);
         if (reportingDTO.getSpeed() != null)      values.put("speed",      reportingDTO.getSpeed());
         if (reportingDTO.getDirection() != null)  values.put("direction",  reportingDTO.getDirection());
         if (reportingDTO.getStatus() != null)     values.put("status",     reportingDTO.getStatus());
-//        if (reportingDTO.getTeamid() != null)     values.put("teamid",     reportingDTO.getTeamid());
         if (reportingDTO.getColor() != null)      values.put("color",      reportingDTO.getColor());
 
         SQLiteDatabase db = this.getWritableDatabase();
 
-        db.update("table_reportings", values, "tokenid=?", new String[]{reportingDTO.getTokenid()});
+        db.update("table_reportings", values, "uuid=?", new String[]{reportingDTO.getUuid()});
         //db.close();
     }
 
 
     // delete
-    public boolean delReporting(String tokenID) {
+    public boolean delReporting(String uuid) {
 
         boolean result = false;
 
-        String query = "SELECT * FROM table_reportings WHERE tokenid = \"" + tokenID + "\"";
+        String query = "SELECT * FROM table_reportings WHERE uuid = \"" + uuid + "\"";
 
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -166,7 +149,7 @@ Log.d(TAG, query);
         if (cursor.moveToFirst()) {
             cursor.getString(0);
 
-            db.delete("table_reportings", "tokenid = ?", new String[]{"1234"});
+            db.delete("table_reportings", "uuid = ?", new String[]{uuid});
             cursor.close();;
             result = true;
         }
@@ -189,11 +172,11 @@ Log.d(TAG, query);
     }
 
     // select
-    public ReportingDTO getReporting(String tokenid) {
+    public ReportingDTO getReporting(String uuid) {
 
         ReportingDTO retDTO = new ReportingDTO();
 
-        String query = "SELECT tokenid, lat, lang, callsign, reporttime, speed, direction, status, color FROM table_reportings WHERE tokenid = \"" + tokenid + "\"";
+        String query = "SELECT uuid, lat, lang, callsign, reporttime, speed, direction, status, color FROM table_reportings WHERE uuid = \"" + uuid + "\"";
 
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -201,7 +184,7 @@ Log.d(TAG, query);
 
         if (cursor.moveToFirst()) {
             cursor.moveToFirst();
-            retDTO.setTokenid(cursor.getString(0));
+            retDTO.setUuid(cursor.getString(0));
             retDTO.setLat(cursor.getDouble(1));
             retDTO.setLang(cursor.getDouble(2));
             retDTO.setCallsign(cursor.getString(3));
@@ -228,25 +211,22 @@ Log.d(TAG, query);
         List<ReportingDTO> dtoList = new ArrayList<ReportingDTO>();
 
         String query = "SELECT " +
-                       "    a.tokenid, a.lat, a.lang, a.callsign, a.reporttime, a.speed, a.direction, a.status, b.teamid, a.color " +
+                       "    a.uuid, a.lat, a.lang, a.callsign, a.reporttime, a.speed, a.direction, a.status, b.teamid, a.color " +
                        "FROM " +
                        "    table_reportings a, " +
                        "    table_team b " +
                        "WHERE " +
-                       "    b.tokenid = a.tokenid " +
+                       "    b.uuid    = a.uuid " +
                        "AND b.teamid  = \"" + teamid + "\" " +
-                       "ORDER BY a.tokenid DESC";
-Log.d(TAG, query);
+                       "ORDER BY a.callsign ASC";
+
         SQLiteDatabase db = this.getWritableDatabase();
 
         Cursor cursor = db.rawQuery(query, null);
 
-        Log.d(TAG, "getReportingAll result count is : " + cursor.getCount());
-
-
         while( cursor.moveToNext() ) {
             ReportingDTO retDTO = new ReportingDTO();
-            retDTO.setTokenid(cursor.getString(0));
+            retDTO.setUuid(cursor.getString(0));
             retDTO.setLat(cursor.getDouble(1));
             retDTO.setLang(cursor.getDouble(2));
             retDTO.setCallsign(cursor.getString(3));
@@ -265,22 +245,19 @@ Log.d(TAG, query);
     }
 
     // select
-    public List<ReportingDTO> getTeamList(String tokenid) {
+    public List<ReportingDTO> getTeamList(String uuid) {
 
         List<ReportingDTO> dtoList = new ArrayList<ReportingDTO>();
 
-        String query = "SELECT tokenid, teamid FROM table_team WHERE tokenid = \"" + tokenid + "\" ORDER BY teamid ASC";
-Log.d(TAG, query);
+        String query = "SELECT uuid, teamid FROM table_team WHERE uuid = \"" + uuid + "\" ORDER BY teamid ASC";
+
         SQLiteDatabase db = this.getWritableDatabase();
 
         Cursor cursor = db.rawQuery(query, null);
 
-        Log.d(TAG, "getTeamList result count is : " + cursor.getCount());
-
-
         while( cursor.moveToNext() ) {
             ReportingDTO retDTO = new ReportingDTO();
-            retDTO.setTokenid(cursor.getString(0));
+            retDTO.setUuid(cursor.getString(0));
             retDTO.setTeamid(cursor.getString(1));
             dtoList.add(retDTO);
         }
@@ -297,31 +274,15 @@ Log.d(TAG, query);
     public void insTeam(ReportingDTO reportingDTO) {
 
         // select before insert
-        String tokenid = reportingDTO.getTokenid();
+        String uuid    = reportingDTO.getUuid();
         String teamid  = reportingDTO.getTeamid();
 
-//        String query = "SELECT tokenid, teamid FROM table_team WHERE tokenid = \"" + tokenid + "\" AND teamid = \"" + teamid + "\"";
-//
         SQLiteDatabase db = this.getWritableDatabase();
-//Log.d(TAG, query);
-//        Cursor cursor = db.rawQuery(query, null);
-//
-//        if (cursor.getCount() == 0) {
-//            ContentValues values = new ContentValues();
-//            values.put("tokenid",    tokenid);
-//            values.put("teamid",     teamid);
-//
-//            long lRet = db.insert("table_team", null, values);
-//            Log.d(TAG, "team insert " + lRet);
-//
-//        } else {
-//            Log.d(TAG, "teamid already exists");
-//        }
 
         String query = "INSERT OR REPLACE INTO table_team "
-                + "(teamkey, teamid, tokenid) "
+                + "(teamkey, teamid, uuid) "
                 + "VALUES "
-                + "(\"" + teamid + tokenid + "\", \"" + teamid + "\", \"" + tokenid + "\")";
+                + "(\"" + teamid + uuid + "\", \"" + teamid + "\", \"" + uuid + "\")";
         db.execSQL(query);
 
         //db.close();
@@ -331,7 +292,7 @@ Log.d(TAG, query);
     public void delTeamAll(String teamId) {
 
         String query = "DELETE FROM table_team WHERE teamid = \"" + teamId + "\"";
-Log.d(TAG, query);
+
         SQLiteDatabase db = this.getWritableDatabase();
 
         db.execSQL(query);
@@ -341,13 +302,11 @@ Log.d(TAG, query);
     // deleteOne
     public void delTeamOne(ReportingDTO dto) {
 
-        String query = "DELETE FROM table_team WHERE teamid = \"" + dto.getTeamid() + "\" " + "AND tokenid = \"" + dto.getTokenid() + "\"";
+        String query = "DELETE FROM table_team WHERE teamid = \"" + dto.getTeamid() + "\" " + "AND uuid = \"" + dto.getUuid() + "\"";
 
         SQLiteDatabase db = this.getWritableDatabase();
 
         db.execSQL(query);
         //db.close();
     }
-
-
 }

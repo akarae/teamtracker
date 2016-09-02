@@ -7,7 +7,7 @@ import android.app.Application;
  */
 public class MemberInfo extends Application {
 
-    private String tokeinid;
+    private String tokenid;
 
     private String callsign;
 
@@ -19,16 +19,18 @@ public class MemberInfo extends Application {
 
     private String status;
 
+    private String uuid;
+
     public String getStatus() {
         return status;
     }
 
-    public String getTokeinid() {
-        return tokeinid;
+    public String getTokenid() {
+        return tokenid;
     }
 
-    public void setTokeinid(String tokeinid) {
-        this.tokeinid = tokeinid;
+    public void setTokenid(String tokenid) {
+        this.tokenid = tokenid;
     }
 
     public String getCallsign() {
@@ -66,4 +68,8 @@ public class MemberInfo extends Application {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public String getUuid() { return uuid; }
+
+    public void setUuid(String uuid) { this.uuid = uuid; }
 }

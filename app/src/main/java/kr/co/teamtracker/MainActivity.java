@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Spanned;
@@ -42,6 +43,7 @@ import com.loopj.android.http.RequestParams;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import cz.msebera.android.httpclient.Header;
@@ -135,7 +137,8 @@ public class MainActivity extends AppCompatActivity  {
                     // request parameter 설정
                     RequestParams params = new RequestParams();
 
-                    params.add("tokenid",  memberInfo.getTokeinid());
+                    params.add("uuid",     memberInfo.getUuid());
+                    params.add("tokenid",  memberInfo.getTokenid());
                     params.add("callsign", memberInfo.getCallsign());
                     params.add("status",   memberInfo.getStatus());
                     params.add("color",    memberInfo.getColor());
@@ -191,6 +194,8 @@ public class MainActivity extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
 
         registBroadcastReceiver();
+
+        GetDevicesUUID(getApplicationContext());
 
         setContentView(R.layout.activity_main);
 
@@ -375,7 +380,7 @@ public class MainActivity extends AppCompatActivity  {
                     // request parameter 설정
                     RequestParams params = new RequestParams();
 
-                    params.add("tokenid",  memberInfo.getTokeinid());
+                    params.add("uuid",   memberInfo.getUuid());
                     params.add("teamid", mTeamidEditText.getText().toString());
                     params.add("flag", "J");
 
@@ -412,7 +417,7 @@ public class MainActivity extends AppCompatActivity  {
                                 memberInfo.setTeamid(mTeamidEditText.getText().toString());
 
                                 ReportingDTO reportingDTO = new ReportingDTO();
-                                reportingDTO.setTokenid(memberInfo.getTokeinid());
+                                reportingDTO.setUuid(memberInfo.getUuid());
                                 reportingDTO.setTeamid(memberInfo.getTeamid());
                                 sqlHelper.insTeam(reportingDTO);
                             }
@@ -475,7 +480,7 @@ public class MainActivity extends AppCompatActivity  {
 //                    // request parameter 설정
 //                    RequestParams params = new RequestParams();
 //
-//                    params.add("tokenid",  memberInfo.getTokeinid());
+//                    params.add("tokenid",  memberInfo.getTokenid());
 //                    params.add("teamid", mTeamidEditText.getText().toString());
 //                    params.add("flag", "N");
 //
@@ -510,7 +515,7 @@ public class MainActivity extends AppCompatActivity  {
 //                                memberInfo.setTeamid(mTeamidEditText.getText().toString());
 //
 //                                ReportingDTO reportingDTO = new ReportingDTO();
-//                                reportingDTO.setTokenid(memberInfo.getTokeinid());
+//                                reportingDTO.setTokenid(memberInfo.getTokenid());
 //                                reportingDTO.setTeamid(memberInfo.getTeamid());
 //                                sqlHelper.insTeam(reportingDTO);
 //                            }
@@ -584,6 +589,9 @@ public class MainActivity extends AppCompatActivity  {
              */
             @Override
             public void onClick(View view) {
+
+                Toast.makeText(getApplicationContext(), "Reporting Start!!!", Toast.LENGTH_SHORT).show();
+
                 Intent intent = new Intent(MainActivity.this, ReportingService.class);
                 startService(intent);
             }
@@ -599,6 +607,9 @@ public class MainActivity extends AppCompatActivity  {
              */
             @Override
             public void onClick(View view) {
+
+                Toast.makeText(getApplicationContext(), "Reporting Stop!!!", Toast.LENGTH_SHORT).show();
+
                 Intent intent = new Intent(MainActivity.this, ReportingService.class);
                 stopService(intent);
             }
@@ -767,6 +778,7 @@ public class MainActivity extends AppCompatActivity  {
                 etEdit.setTextColor(Color.WHITE);
                 etEdit.setHintTextColor(Color.GRAY);
                 etEdit.setTextSize(16);
+                etEdit.setPrivateImeOptions("defaultInputmode=english;");
                 etEdit.setHint("input your TeadID");
 
                 etEdit.setImeOptions(EditorInfo.IME_ACTION_DONE);
@@ -816,7 +828,7 @@ public class MainActivity extends AppCompatActivity  {
                             // request parameter 설정
                             RequestParams params = new RequestParams();
 
-                            params.add("tokenid",  memberInfo.getTokeinid());
+                            params.add("uuid",     memberInfo.getUuid());
                             params.add("teamid",   inputValue);
                             params.add("flag",     "N");
 
@@ -851,7 +863,7 @@ public class MainActivity extends AppCompatActivity  {
                                         memberInfo.setTeamid(inputValue);
 
                                         ReportingDTO reportingDTO = new ReportingDTO();
-                                        reportingDTO.setTokenid(memberInfo.getTokeinid());
+                                        reportingDTO.setUuid(memberInfo.getUuid());
                                         reportingDTO.setTeamid(memberInfo.getTeamid());
                                         sqlHelper.insTeam(reportingDTO);
                                     }
@@ -936,11 +948,11 @@ public class MainActivity extends AppCompatActivity  {
     protected void setTeamListView() {
 
         MemberInfo memberInfo = (MemberInfo) getApplicationContext();
-        String sTokenId = memberInfo.getTokeinid();
+        String sUuid = memberInfo.getUuid();
 
-        if (sTokenId != null && !sTokenId.equals("") && sTokenId.length() > 0) {
+        if (sUuid != null && !sUuid.equals("") && sUuid.length() > 0) {
 
-            List<ReportingDTO> retDto = sqlHelper.getTeamList(sTokenId);
+            List<ReportingDTO> retDto = sqlHelper.getTeamList(sUuid);
 
             if (retDto != null && retDto.size() > 0) {
 
@@ -987,9 +999,9 @@ public class MainActivity extends AppCompatActivity  {
                                         // request parameter 설정
                                         RequestParams params = new RequestParams();
 
-                                        params.add("tokenid", memberInfo.getTokeinid());
+                                        params.add("uuid",   memberInfo.getUuid());
                                         params.add("teamid", listItemValue);
-                                        params.add("flag", "D");
+                                        params.add("flag",   "D");
 
                                         GCMHttpClient.get("/gcm/registteam", params, new AsyncHttpResponseHandler() {
                                             @Override
@@ -1074,5 +1086,24 @@ public class MainActivity extends AppCompatActivity  {
             Log.i(TAG, "nodejs connection error " + e.getMessage());
         }
     }
+
+    /**
+     * get Universal Unique Number
+     * @param mContext
+     * @return
+     */
+    private void GetDevicesUUID(Context mContext){
+        final TelephonyManager tm = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
+        final String tmDevice, tmSerial, androidId;
+        tmDevice = "" + tm.getDeviceId();
+        tmSerial = "" + tm.getSimSerialNumber();
+        androidId = "" + android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+        UUID deviceUuid = new UUID(androidId.hashCode(), ((long)tmDevice.hashCode() << 32) | tmSerial.hashCode());
+        String deviceId = deviceUuid.toString();
+Log.d(TAG, "device ID is : " + deviceId);
+        MemberInfo memberInfo = (MemberInfo) getApplicationContext();
+        memberInfo.setUuid(deviceId);
+    }
+
 
 }

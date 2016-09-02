@@ -4,7 +4,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:gravity="top|center"
-    android:background="#ffffff"
+    android:background="@drawable/background"
     android:weightSum="1">
 
     <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -14,6 +14,14 @@
         android:columnCount="4"
         android:paddingTop="10dp"
         android:paddingBottom="10dp">
+
+        <Spinner
+            android:layout_width="50dp"
+            android:layout_height="30dp"
+            android:id="@+id/sp_color"
+            android:spinnerMode="dropdown"
+            android:layout_rowSpan="3"
+            android:layout_gravity="center" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -39,20 +47,12 @@
             android:digits="abcdefghijklmnopqrstuvwxyz0123456789"
             android:padding="2dp" />
 
-        <Spinner
-            android:layout_width="50dp"
-            android:layout_height="30dp"
-            android:id="@+id/sp_color"
-            android:spinnerMode="dropdown"
-            android:layout_rowSpan="3"
-            android:layout_gravity="center" />
-
         <Button android:id="@+id/btn_registration"
             android:layout_width="60dp"
             android:layout_height="30dp"
             android:text="APPLY"
             android:background="@drawable/button_rounded"
-            android:layout_gravity="right" />
+            android:layout_gravity="center" />
 
         <android.support.v4.widget.Space
             android:layout_height="3dp"
@@ -91,30 +91,32 @@
             android:layout_height="30dp"
             android:text="JOIN"
             android:background="@drawable/button_rounded"
-            android:layout_gravity="right" />
+            android:layout_gravity="center" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="STATUS"
+            android:text="Status"
             android:id="@+id/tv_status"
             android:textSize="16dp"
             android:layout_weight="0.10"
             android:padding="3dp"
             android:layout_columnSpan="2"
             android:textColor="@color/colorPrimaryDark"
+            android:layout_gravity="center"
             />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="INTERVAL"
+            android:text="Interval"
             android:id="@+id/tv_interval"
             android:textSize="16dp"
             android:layout_weight="0.10"
             android:padding="3dp"
             android:layout_columnSpan="2"
             android:textColor="@color/colorPrimaryDark"
+            android:layout_gravity="center"
             />
 
         <Spinner

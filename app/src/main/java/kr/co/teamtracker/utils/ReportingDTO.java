@@ -7,7 +7,7 @@ public class ReportingDTO {
 
     private int seq;
 
-    private String tokenid;
+    private String uuid;
 
     private Double lat;
 
@@ -51,12 +51,12 @@ public class ReportingDTO {
         this.seq = seq;
     }
 
-    public String getTokenid() {
-        return tokenid;
+    public String getUuid() {
+        return uuid;
     }
 
-    public void setTokenid(String tokenid) {
-        this.tokenid = tokenid;
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public Double getLat() {

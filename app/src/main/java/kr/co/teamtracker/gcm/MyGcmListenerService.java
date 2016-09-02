@@ -35,16 +35,19 @@ public class MyGcmListenerService extends GcmListenerService {
         String title   = data.getString("title");
         String message = data.getString("message");
 
-        String sTokenid    = new String();
+        String sUuid       = new String();
         String sCallsign   = new String();
         String sTeamid     = new String();
         String sStatus     = new String();
+        String sColor      = "169fed";
+
         Double sLat        = 0.0;
         Double sLang       = 0.0;
         String sReporttime = new String();
         String sDirection  = new String();
         String sSpeed      = new String();
-        String sColor      = "169fed";
+
+
         String sFlag       = new String();
 
         try {
@@ -54,7 +57,7 @@ public class MyGcmListenerService extends GcmListenerService {
             sFlag       = jsonObj.getString("flag"); // R:Reporting, T:TeamRegist, D:TeamDelete
 
             if (sFlag.equals("R")) { // R:Reporting, T:TeamRegist, D:TeamDelete
-                sTokenid    = jsonObj.getString("tokenid");
+                sUuid       = jsonObj.getString("uuid");
                 sCallsign   = jsonObj.getString("callsign");
                 sStatus     = jsonObj.getString("status");
                 sLat        = jsonObj.getDouble("lat");
@@ -66,7 +69,7 @@ public class MyGcmListenerService extends GcmListenerService {
             }
 
             if (sFlag.equals("T") || sFlag.equals("D")) { // R:Reporting, T:TeamRegist, D:TeamDelete
-                sTokenid    = jsonObj.getString("tokenid");
+                sUuid       = jsonObj.getString("uuid");
                 sTeamid     = jsonObj.getString("teamid");
             }
 
@@ -74,19 +77,19 @@ public class MyGcmListenerService extends GcmListenerService {
             e.printStackTrace();
         }
 
-        Log.d(TAG, "From: "        + from);
-        Log.d(TAG, "Title: "       + title);
-        Log.d(TAG, "Message: "     + message);
-        Log.d(TAG, "callsign: "    + sCallsign);
-        Log.d(TAG, "teamid: "      + sTeamid);
-        Log.d(TAG, "sTokenid: "    + sTokenid);
-        Log.d(TAG, "sLat: "        + sLat);
-        Log.d(TAG, "sLang: "       + sLang);
-        Log.d(TAG, "sReporttime: " + sReporttime);
-        Log.d(TAG, "sDirection: "  + sDirection);
-        Log.d(TAG, "sSpeed: "      + sSpeed);
-        Log.d(TAG, "sStatus: "     + sStatus);
-        Log.d(TAG, "sColor:"       + sColor);
+//        Log.d(TAG, "From: "        + from);
+//        Log.d(TAG, "Title: "       + title);
+//        Log.d(TAG, "Message: "     + message);
+//        Log.d(TAG, "callsign: "    + sCallsign);
+//        Log.d(TAG, "teamid: "      + sTeamid);
+//        Log.d(TAG, "sUuid: "       + sUuid);
+//        Log.d(TAG, "sLat: "        + sLat);
+//        Log.d(TAG, "sLang: "       + sLang);
+//        Log.d(TAG, "sReporttime: " + sReporttime);
+//        Log.d(TAG, "sDirection: "  + sDirection);
+//        Log.d(TAG, "sSpeed: "      + sSpeed);
+//        Log.d(TAG, "sStatus: "     + sStatus);
+//        Log.d(TAG, "sColor:"       + sColor);
 
         // GCM으로 받은 메세지를 디바이스에 알려주는 sendNotification()을 호출한다.
         // todo
@@ -100,7 +103,7 @@ public class MyGcmListenerService extends GcmListenerService {
         ReportingDTO dto = new ReportingDTO();
 
         if (sFlag.equals("R")) { // R:Reporting, T:TeamRegist, D:TeamDelete
-            dto.setTokenid(sTokenid);
+            dto.setUuid(sUuid);
             dto.setTeamid(sTeamid);
             dto.setCallsign(sCallsign);
             dto.setLat(sLat);
@@ -115,14 +118,14 @@ public class MyGcmListenerService extends GcmListenerService {
         }
 
         if (sFlag.equals("T")) { // R:Reporting, T:TeamRegist, D:TeamDelete
-            dto.setTokenid(sTokenid);
+            dto.setUuid(sUuid);
             dto.setTeamid(sTeamid);
 
             sqlHelper.insTeam(dto);
         }
 
         if (sFlag.equals("D")) {
-            dto.setTokenid(sTokenid);
+            dto.setUuid(sUuid);
             dto.setTeamid(sTeamid);
 
             sqlHelper.delTeamOne(dto);

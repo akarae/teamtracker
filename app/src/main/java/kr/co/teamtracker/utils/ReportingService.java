@@ -35,8 +35,7 @@ public class ReportingService extends Service {
     SQLiteHelper sqlHelper;
 
     // location service
-    public static final String BROADCAST_ACTION = "Hello World";
-    private static final int LOCATION_UPDATE_TERM = 1000 * 1 * 1; // 10sec
+    private static int LOCATION_UPDATE_TERM = 1000 * 1 * 1; // 10sec
     public LocationManager locationManager;
     public MyLocationListener listener;
     public Location previousBestLocation = null;
@@ -108,7 +107,7 @@ public class ReportingService extends Service {
 
             try {
 
-                ReportingDTO reportingDTO = sqlHelper.getReporting(((MemberInfo)getApplicationContext()).getTokeinid());
+                ReportingDTO reportingDTO = sqlHelper.getReporting(((MemberInfo)getApplicationContext()).getUuid());
 
                 if (reportingDTO != null && reportingDTO.getLat() != null && reportingDTO.getLang() != null) {
 
@@ -117,11 +116,10 @@ public class ReportingService extends Service {
                     // request parameter 설정
                     RequestParams params = new RequestParams();
 
-                    params.add("tokenid", memberInfo.getTokeinid());
-                    params.add("callsign", memberInfo.getCallsign());
-                    params.add("teamid", memberInfo.getTeamid());
-                    params.add("status", memberInfo.getStatus());
-                    params.add("color", memberInfo.getColor());
+                    params.add("uuid",     memberInfo.getUuid());
+//                    params.add("callsign", memberInfo.getCallsign());
+//                    params.add("status",   memberInfo.getStatus());
+//                    params.add("color",    memberInfo.getColor());
 
                     params.add("lat", reportingDTO.getLat().toString());
                     params.add("lang", reportingDTO.getLang().toString());
@@ -237,12 +235,12 @@ public class ReportingService extends Service {
 
                 //Toast.makeText(getApplicationContext(), "location changed", Toast.LENGTH_SHORT).show();
 
-                ReportingDTO reportingDTO = sqlHelper.getReporting(((MemberInfo)getApplicationContext()).getTokeinid());
+                ReportingDTO reportingDTO = sqlHelper.getReporting(((MemberInfo)getApplicationContext()).getUuid());
 
                 if (reportingDTO == null || reportingDTO.getLat() == null || reportingDTO.getLat() == null) {
 
                     ReportingDTO dto = new ReportingDTO();
-                    dto.setTokenid(((MemberInfo) getApplicationContext()).getTokeinid());
+                    dto.setUuid(((MemberInfo) getApplicationContext()).getUuid());
                     dto.setCallsign(((MemberInfo) getApplicationContext()).getCallsign());
                     dto.setTeamid(((MemberInfo) getApplicationContext()).getTeamid());
                     dto.setStatus(((MemberInfo) getApplicationContext()).getStatus());
@@ -266,7 +264,7 @@ public class ReportingService extends Service {
                     SQLiteHelper sqlHelper = new SQLiteHelper(ReportingService.this, null, SQLiteHelper.dbVersion);
 
                     ReportingDTO dto = new ReportingDTO();
-                    dto.setTokenid(((MemberInfo) getApplicationContext()).getTokeinid());
+                    dto.setUuid(((MemberInfo) getApplicationContext()).getUuid());
                     dto.setLat(loc.getLatitude());
                     dto.setLang(loc.getLongitude());
                     dto.setSpeed(Float.toString(loc.getSpeed()));

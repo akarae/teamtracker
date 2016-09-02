@@ -8,15 +8,10 @@ import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
-import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
 
 import java.io.IOException;
 
-import cz.msebera.android.httpclient.Header;
-import kr.co.teamtracker.MapsActivity;
 import kr.co.teamtracker.R;
-import kr.co.teamtracker.httpclient.GCMHttpClient;
 import kr.co.teamtracker.utils.MemberInfo;
 import kr.co.teamtracker.utils.ReportingDTO;
 import kr.co.teamtracker.utils.SQLiteHelper;
@@ -67,11 +62,11 @@ public class RegistrationIntentService extends IntentService {
 
                 // 전역변수 선언
                 MemberInfo memberInfo = (MemberInfo) getApplicationContext();
-                memberInfo.setTokeinid(token);
+                memberInfo.setTokenid(token);
 
                 // SQLite 등록처리 및 WebSerrver 등록
                 ReportingDTO reportingDTO = new ReportingDTO();
-                reportingDTO.setTokenid(token);
+                reportingDTO.setUuid(memberInfo.getUuid());
                 reportingDTO.setCallsign(memberInfo.getCallsign());
                 reportingDTO.setTeamid(memberInfo.getTeamid());
                 reportingDTO.setStatus(memberInfo.getStatus());
