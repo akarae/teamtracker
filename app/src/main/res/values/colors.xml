@@ -2,6 +2,7 @@
 <resources>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorPrimaryAlpha">#AA3F51B5</color>
     <color name="colorAccent">#FF4081</color>
     <!-- ICON COLORS -->
     <color name="m_06ff00">#06FF00</color>

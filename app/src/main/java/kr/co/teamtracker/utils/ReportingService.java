@@ -35,7 +35,7 @@ public class ReportingService extends Service {
     SQLiteHelper sqlHelper;
 
     // location service
-    private static int LOCATION_UPDATE_TERM = 1000 * 1 * 1; // 10sec
+    private static int LOCATION_UPDATE_TERM = 3000 * 1 * 1; // 10sec
     public LocationManager locationManager;
     public MyLocationListener listener;
     public Location previousBestLocation = null;
@@ -237,18 +237,24 @@ public class ReportingService extends Service {
 
                 ReportingDTO reportingDTO = sqlHelper.getReporting(((MemberInfo)getApplicationContext()).getUuid());
 
-                if (reportingDTO == null || reportingDTO.getLat() == null || reportingDTO.getLat() == null) {
+//                if (reportingDTO == null || reportingDTO.getLat() == null || reportingDTO.getLat() == null) {
 
                     ReportingDTO dto = new ReportingDTO();
                     dto.setUuid(((MemberInfo) getApplicationContext()).getUuid());
                     dto.setCallsign(((MemberInfo) getApplicationContext()).getCallsign());
-                    dto.setTeamid(((MemberInfo) getApplicationContext()).getTeamid());
                     dto.setStatus(((MemberInfo) getApplicationContext()).getStatus());
+                    dto.setColor(((MemberInfo) getApplicationContext()).getColor());
 
                     dto.setLat(loc.getLatitude());
                     dto.setLang(loc.getLongitude());
-                    dto.setSpeed(Float.toString(loc.getSpeed()));
-                    dto.setDirection(Float.toString(loc.getBearing()));
+
+                    float fSpeed = loc.getSpeed();
+                    fSpeed = fSpeed * 3600; // second -> hour
+                    fSpeed = fSpeed / 1000; // meter -> km
+
+                    dto.setSpeed(String.format("%03d", (int) fSpeed));
+
+                    dto.setDirection(String.format("%03d", (int) loc.getBearing()));
 
                     Calendar c = Calendar.getInstance();
                     SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -257,26 +263,26 @@ public class ReportingService extends Service {
 
                     sqlHelper.insReporting(dto);
 
-                } else {
-
-                    // SQLite 저장
-                    // SQLite Update 처리
-                    SQLiteHelper sqlHelper = new SQLiteHelper(ReportingService.this, null, SQLiteHelper.dbVersion);
-
-                    ReportingDTO dto = new ReportingDTO();
-                    dto.setUuid(((MemberInfo) getApplicationContext()).getUuid());
-                    dto.setLat(loc.getLatitude());
-                    dto.setLang(loc.getLongitude());
-                    dto.setSpeed(Float.toString(loc.getSpeed()));
-                    dto.setDirection(Float.toString(loc.getBearing()));
-
-                    Calendar c = Calendar.getInstance();
-                    SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-                    String formattedDate = df.format(c.getTime());
-                    dto.setReporttime(formattedDate);
-
-                    sqlHelper.setReporting(dto);
-                }
+//                } else {
+//
+//                    // SQLite 저장
+//                    // SQLite Update 처리
+//                    SQLiteHelper sqlHelper = new SQLiteHelper(ReportingService.this, null, SQLiteHelper.dbVersion);
+//
+//                    ReportingDTO dto = new ReportingDTO();
+//                    dto.setUuid(((MemberInfo) getApplicationContext()).getUuid());
+//                    dto.setLat(loc.getLatitude());
+//                    dto.setLang(loc.getLongitude());
+//                    dto.setSpeed(Float.toString(loc.getSpeed()));
+//                    dto.setDirection(Float.toString(loc.getBearing()));
+//
+//                    Calendar c = Calendar.getInstance();
+//                    SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+//                    String formattedDate = df.format(c.getTime());
+//                    dto.setReporttime(formattedDate);
+//
+//                    sqlHelper.setReporting(dto);
+//                }
             }
         }
 

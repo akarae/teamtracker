@@ -41,6 +41,9 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -130,7 +133,7 @@ public class MainActivity extends AppCompatActivity  {
                 String action = intent.getAction();
 
                 if (action.equals(QuickstartPreferences.REGISTRATION_COMPLETE)) {
-                    String token = intent.getStringExtra("token");
+//                    String token = intent.getStringExtra("token");
 
                     MemberInfo memberInfo = (MemberInfo) getApplicationContext();
 
@@ -389,6 +392,16 @@ public class MainActivity extends AppCompatActivity  {
                         public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
 
                             String responseMsg = new String(responseBody);
+                            JSONObject jsonObj = new JSONObject();
+                            JSONArray membersObjArr = new JSONArray();
+
+                            // json parsing
+                            try {
+                                jsonObj = new JSONObject(responseMsg);
+                                responseMsg = jsonObj.getString("resultMsg");
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
 
                             Log.i(TAG, "statusCode is : " + statusCode);
                             Log.i(TAG, "responseBody is : " + responseMsg);
@@ -407,19 +420,47 @@ public class MainActivity extends AppCompatActivity  {
                             }
 
                             if (responseMsg.equals(QuickstartPreferences.TEAMS_MEMBERS_UPDATE_SUCCESS)
-                                    || responseMsg.equals(QuickstartPreferences.TEAMS_GCM_SEND_SUCCESS)) {
+                                    || responseMsg.equals(QuickstartPreferences.TEAMS_GCM_SEND_SUCCESS)
+                                    || responseMsg.equals(QuickstartPreferences.TEAMS_GCM_SEND_ERROR)) {
 
                                 Toast.makeText(getApplicationContext(), "team registration success", Toast.LENGTH_SHORT).show();
 
                                 // team 등록
                                 MemberInfo memberInfo = (MemberInfo) getApplicationContext();
-
                                 memberInfo.setTeamid(mTeamidEditText.getText().toString());
 
-                                ReportingDTO reportingDTO = new ReportingDTO();
-                                reportingDTO.setUuid(memberInfo.getUuid());
-                                reportingDTO.setTeamid(memberInfo.getTeamid());
-                                sqlHelper.insTeam(reportingDTO);
+//                                ReportingDTO reportingDTO = new ReportingDTO();
+//                                reportingDTO.setUuid(memberInfo.getUuid());
+//                                reportingDTO.setTeamid(memberInfo.getTeamid());
+//                                sqlHelper.insTeam(reportingDTO);
+
+                                try {
+                                    membersObjArr = jsonObj.getJSONArray("membersObjArr");
+
+                                    // 데이터 insert
+                                    for (int i = 0; i < membersObjArr.length(); i++) {
+
+                                        // reporting 정보
+                                        JSONObject memberJSON = (JSONObject) membersObjArr.get(i);
+                                        ReportingDTO memberDto = new ReportingDTO();
+                                        memberDto.setUuid(memberJSON.getString("uuid"));
+                                        memberDto.setCallsign(memberJSON.getString("callsign"));
+                                        memberDto.setStatus(memberJSON.getString("status"));
+                                        memberDto.setLat(memberJSON.getDouble("lat"));
+                                        memberDto.setLang(memberJSON.getDouble("lang"));
+                                        memberDto.setReporttime(memberJSON.getString("reporttime"));
+                                        memberDto.setDirection(memberJSON.getString("direction"));
+                                        memberDto.setSpeed(memberJSON.getString("speed"));
+                                        memberDto.setColor(memberJSON.getString("color"));
+                                        sqlHelper.insReporting(memberDto);
+
+                                        // team 정보
+                                        memberDto.setTeamid(memberInfo.getTeamid());
+                                        sqlHelper.insTeam(memberDto);
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
                             }
                         }
 
@@ -1023,6 +1064,12 @@ public class MainActivity extends AppCompatActivity  {
 
                                                     if (count > 0) {
 
+                                                        // team 삭제
+                                                        MemberInfo memberInfo = (MemberInfo) getApplicationContext();
+
+                                                        sqlHelper.delTeamAll(listItemValue);
+                                                        setTeamListView(); // team삭제후 ListView 재조회
+
                                                         // 아이템 삭제
                                                         items.remove(listItemPosition) ;
 
@@ -1030,11 +1077,6 @@ public class MainActivity extends AppCompatActivity  {
                                                         adapter.notifyDataSetChanged();
                                                     }
 
-                                                    // team 등록
-//                                                    MemberInfo memberInfo = (MemberInfo) getApplicationContext();
-//
-//                                                    sqlHelper.delTeamAll(listItemValue);
-//                                                    setTeamListView(); // team삭제후 ListView 재조회
                                                 }
                                             }
 

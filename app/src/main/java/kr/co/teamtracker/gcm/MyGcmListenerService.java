@@ -77,19 +77,20 @@ public class MyGcmListenerService extends GcmListenerService {
             e.printStackTrace();
         }
 
-//        Log.d(TAG, "From: "        + from);
-//        Log.d(TAG, "Title: "       + title);
-//        Log.d(TAG, "Message: "     + message);
-//        Log.d(TAG, "callsign: "    + sCallsign);
-//        Log.d(TAG, "teamid: "      + sTeamid);
-//        Log.d(TAG, "sUuid: "       + sUuid);
-//        Log.d(TAG, "sLat: "        + sLat);
-//        Log.d(TAG, "sLang: "       + sLang);
-//        Log.d(TAG, "sReporttime: " + sReporttime);
-//        Log.d(TAG, "sDirection: "  + sDirection);
-//        Log.d(TAG, "sSpeed: "      + sSpeed);
-//        Log.d(TAG, "sStatus: "     + sStatus);
-//        Log.d(TAG, "sColor:"       + sColor);
+        Log.d(TAG, "From: "        + from);
+        Log.d(TAG, "Title: "       + title);
+        Log.d(TAG, "Message: "     + message);
+        Log.d(TAG, "callsign: "    + sCallsign);
+        Log.d(TAG, "teamid: "      + sTeamid);
+        Log.d(TAG, "sUuid: "       + sUuid);
+        Log.d(TAG, "sLat: "        + sLat);
+        Log.d(TAG, "sLang: "       + sLang);
+        Log.d(TAG, "sReporttime: " + sReporttime);
+        Log.d(TAG, "sDirection: "  + sDirection);
+        Log.d(TAG, "sSpeed: "      + sSpeed);
+        Log.d(TAG, "sStatus: "     + sStatus);
+        Log.d(TAG, "sColor:"       + sColor);
+        Log.d(TAG, "sFlag:"        + sFlag);
 
         // GCM으로 받은 메세지를 디바이스에 알려주는 sendNotification()을 호출한다.
         // todo

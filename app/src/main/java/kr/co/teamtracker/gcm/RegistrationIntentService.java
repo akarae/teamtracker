@@ -73,7 +73,7 @@ public class RegistrationIntentService extends IntentService {
                 reportingDTO.setColor(memberInfo.getColor());
 
                 // 조회결과가 존재하지 않는 경우에만 insert
-                ReportingDTO retDTO = sqlHelper.getReporting(token);
+                ReportingDTO retDTO = sqlHelper.getReporting(memberInfo.getUuid());
                 if (retDTO == null || retDTO.getCallsign() == null) {
 
                     sqlHelper.insReporting(reportingDTO);
@@ -82,7 +82,6 @@ public class RegistrationIntentService extends IntentService {
                 } else {
 
                     sqlHelper.setReporting(reportingDTO);
-
                 }
 
             }
@@ -93,7 +92,7 @@ public class RegistrationIntentService extends IntentService {
         // GCM Instance ID에 해당하는 토큰을 획득하면 LocalBoardcast에 COMPLETE 액션을 알린다.
         // 이때 토큰을 함께 넘겨주어서 UI에 토큰 정보를 활용할 수 있도록 했다.
         Intent registrationComplete = new Intent(QuickstartPreferences.REGISTRATION_COMPLETE);
-        registrationComplete.putExtra("token", token);
+//        registrationComplete.putExtra("token", token);
         LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete);
     }
 }

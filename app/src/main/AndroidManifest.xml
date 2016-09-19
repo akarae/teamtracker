@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="kr.co.teamtracker">
+    package="kr.co.teamtracker"
+    android:versionCode="4"
+    android:versionName="1.3">
 
     <!-- [START gcm_permission] -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -11,11 +13,11 @@
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
          Google Maps Android API v2, but you must specify either coarse or fine
-         location permissions for the 'MyLocation' functionality. 
+         location permissions for the 'MyLocation' functionality.
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <!-- uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" / -->
 
+    <!-- uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" / -->
     <!-- [END gcm_permission] -->
     <application
         android:name=".utils.MemberInfo"
@@ -29,6 +31,7 @@
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -57,15 +60,18 @@
         </service>
         <!-- [END gcm_listener_service] -->
 
+
         <!-- this will be delete -->
         <!-- [START instanceId_listener_service] -->
-        <!-- service
+        <!--
+        service
             android:name=".gcm.MyInstanceIDListenerService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.gms.iid.InstanceID" />
             </intent-filter>
-        </service -->
+        </service
+        -->
         <!-- [END instanceId_listener_service] -->
 
 
@@ -89,7 +95,7 @@
              Note that the API key is linked to the encryption key used to sign the APK.
              You need a different API key for each encryption key, including the release key that is used to
              sign the APK for publishing.
-             You can define the keys for the debug and release targets in src/debug/ and src/release/. 
+             You can define the keys for the debug and release targets in src/debug/ and src/release/.
         -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -97,17 +103,24 @@
 
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps" >
+            android:label="@string/title_activity_maps">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-            </activity>
+        </activity>
 
         <service
             android:name=".utils.ReportingService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
+        <activity
+            android:name=".SetupActivity"
+            android:label="@string/title_activity_setup">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

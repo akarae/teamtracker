@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <GridLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:columnCount="3"
+        android:layout_gravity="center_horizontal"
+        >
+        <TextView
+            android:id="@+id/tv_setup_title_teamid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TeamID Map_Setup"
+            android:textSize="16dp"
+            android:textColor="#000000"
+            android:layout_columnSpan="3"
+            />
+        <TextView
+            android:id="@+id/tv_setup_title_goal"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:text="GOAL"
+            android:textSize="16dp"
+            android:textColor="#000000"
+            />
+        <TextView
+            android:id="@+id/tv_setup_goal"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:text="-"
+            android:textSize="16dp"
+            android:textColor="#000000"
+            />
+        <Button android:id="@+id/btn_setup_goal"
+            android:layout_width="60dp"
+            android:layout_height="20dp"
+            android:text="APPLY"
+            android:background="@drawable/button_rounded"
+            android:layout_gravity="center" />
+
+        <!-- checkpoint -->
+        <TextView
+            android:id="@+id/tv_setup_title_checkpoint1"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:text="CP1"
+            android:textSize="16dp"
+            android:textColor="#000000"
+            />
+        <TextView
+            android:id="@+id/tv_setup_checkpoint1"
+            android:layout_width="25dp"
+            android:layout_height="20dp"
+            android:text="-"
+            android:textSize="16dp"
+            android:textColor="#000000"
+            />
+        <Button android:id="@+id/btn_setup_checkpoint1"
+            android:layout_width="60dp"
+            android:layout_height="20dp"
+            android:text="APPLY"
+            android:background="@drawable/button_rounded"
+            android:layout_gravity="center" />
+
+        <!-- checkpoint -->
+        <TextView
+            android:id="@+id/tv_setup_title_checkpoint2"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:text="CP2"
+            android:textSize="16dp"
+            android:textColor="#000000"
+            />
+        <TextView
+            android:id="@+id/tv_setup_checkpoint2"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:text="-"
+            android:textSize="16dp"
+            android:textColor="#000000"
+            />
+        <Button android:id="@+id/btn_setup_checkpoint2"
+            android:layout_width="60dp"
+            android:layout_height="20dp"
+            android:text="APPLY"
+            android:background="@drawable/button_rounded"
+            android:layout_gravity="center" />
+
+        <!-- checkpoint3 -->
+        <TextView
+            android:id="@+id/tv_setup_title_checkpoint3"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:text="CP3"
+            android:textSize="16dp"
+            android:textColor="#000000"
+            />
+        <TextView
+            android:id="@+id/tv_setup_checkpoint3"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:text="-"
+            android:textSize="16dp"
+            android:textColor="#000000"
+            />
+        <Button android:id="@+id/btn_setup_checkpoint3"
+            android:layout_width="60dp"
+            android:layout_height="20dp"
+            android:text="APPLY"
+            android:background="@drawable/button_rounded"
+            android:layout_gravity="center" />
+
+        <!-- search -->
+        <TextView
+            android:id="@+id/tv_setup_title_search"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:text="SEARCH"
+            android:textSize="16sp"
+            android:textColor="#000000"
+            />
+        <EditText
+            android:id="@+id/et_setup_search"
+            android:layout_width="200dp"
+            android:layout_height="40dp"
+            android:textSize="12dp"
+            android:hint="input address" />
+        <Button android:id="@+id/btn_setup_search"
+            android:layout_width="60dp"
+            android:layout_height="20dp"
+            android:text="SEARCH"
+            android:background="@drawable/button_rounded"
+            android:layout_gravity="center" />
+    </GridLayout>
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:map="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/map_setup"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="kr.co.teamtracker.SetupActivity"
+        tools:layout="@layout/abc_expanded_menu_layout" />
+</LinearLayout>

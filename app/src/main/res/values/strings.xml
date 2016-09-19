@@ -18,4 +18,6 @@
         <item>5MIN</item>
         <item>10MIN</item>
     </string-array>
+    <string name="title_activity_setup">TeamTracker_Setup</string>
+    <string name="action_settings">Settings</string>
 </resources>

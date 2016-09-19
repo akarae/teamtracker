@@ -20,7 +20,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 
     private static final String DBFilename = "teamtrackerdb";
 
-    public static final int dbVersion = 14;
+    public static final int dbVersion = 16;
 
     // 안드로이드에서 SQLite 데이터 베이스를 쉽게 사용할 수 있도록 도와주는 클래스
     public SQLiteHelper(Context context, CursorFactory factory, int version) {
@@ -225,6 +225,9 @@ public class SQLiteHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(query, null);
 
         while( cursor.moveToNext() ) {
+
+            Log.d(TAG, cursor.getString(0));
+
             ReportingDTO retDTO = new ReportingDTO();
             retDTO.setUuid(cursor.getString(0));
             retDTO.setLat(cursor.getDouble(1));
@@ -238,6 +241,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
             retDTO.setColor(cursor.getString(9));
             dtoList.add(retDTO);
         }
+        cursor.close();
 
         //db.close();
 
@@ -261,6 +265,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
             retDTO.setTeamid(cursor.getString(1));
             dtoList.add(retDTO);
         }
+        cursor.close();
 
         //db.close();
 
