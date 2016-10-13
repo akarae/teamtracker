@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -22,13 +23,12 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import cz.msebera.android.httpclient.Header;
+import kr.co.teamtracker.gcm.QuickstartPreferences;
 import kr.co.teamtracker.httpclient.GCMHttpClient;
 
 public class ReportingService extends Service {
 
     private static final String TAG = "ReportingService";
-
-    public final static String MY_ACTION = "MY_ACTION";
 
     NotificationManager Notifi_M;
     ServiceThread thread;
@@ -68,7 +68,7 @@ public class ReportingService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        Log.d(TAG, "☆☆☆☆☆ service onStartCommand ☆☆☆☆☆");
+        //Log.d(TAG, "☆☆☆☆☆ service onStartCommand ☆☆☆☆☆");
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         listener = new MyLocationListener();
@@ -87,7 +87,7 @@ public class ReportingService extends Service {
     @Override
     public void onDestroy() {
 
-        Log.d(TAG, "☆☆☆☆☆ service destroyed ☆☆☆☆☆");
+        //Log.d(TAG, "☆☆☆☆☆ service destroyed ☆☆☆☆☆");
 
         thread.stopForever();
         thread = null;//쓰레기 값을 만들어서 빠르게 회수하라고 null을 넣어줌.
@@ -107,27 +107,21 @@ public class ReportingService extends Service {
 
             try {
 
-                ReportingDTO reportingDTO = sqlHelper.getReporting(((MemberInfo)getApplicationContext()).getUuid());
+                SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
+
+                ReportingDTO reportingDTO = sqlHelper.getReporting(gMemberInfo.getString("uuid", null));
 
                 if (reportingDTO != null && reportingDTO.getLat() != null && reportingDTO.getLang() != null) {
-
-                    MemberInfo memberInfo = (MemberInfo) getApplicationContext();
 
                     // request parameter 설정
                     RequestParams params = new RequestParams();
 
-                    params.add("uuid",     memberInfo.getUuid());
-//                    params.add("callsign", memberInfo.getCallsign());
-//                    params.add("status",   memberInfo.getStatus());
-//                    params.add("color",    memberInfo.getColor());
-
+                    params.add("uuid",     gMemberInfo.getString("uuid", null));
                     params.add("lat", reportingDTO.getLat().toString());
                     params.add("lang", reportingDTO.getLang().toString());
                     params.add("speed", reportingDTO.getSpeed().toString());
                     params.add("direction", reportingDTO.getDirection());
                     params.add("reporttime", reportingDTO.getReporttime());
-
-
 
                     GCMHttpClient.get("/gcm", params, new AsyncHttpResponseHandler() {
                         @Override
@@ -163,10 +157,10 @@ public class ReportingService extends Service {
                     reportResult = "no location";
                 }
 
-                Intent intent = new Intent();
-                intent.setAction(MY_ACTION);
-                intent.putExtra("reportResult", reportResult);
-                sendBroadcast(intent);
+//                Intent intent = new Intent();
+//                intent.setAction(QuickstartPreferences.REPORT_NOTIFICATION);
+//                intent.putExtra("reportResult", reportResult);
+//                sendBroadcast(intent);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -233,17 +227,16 @@ public class ReportingService extends Service {
 
             if (isBetterLocation(loc, previousBestLocation)) {
 
-                //Toast.makeText(getApplicationContext(), "location changed", Toast.LENGTH_SHORT).show();
+                SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
 
-                ReportingDTO reportingDTO = sqlHelper.getReporting(((MemberInfo)getApplicationContext()).getUuid());
+                ReportingDTO reportingDTO = sqlHelper.getReporting(gMemberInfo.getString("uuid", null));
 
-//                if (reportingDTO == null || reportingDTO.getLat() == null || reportingDTO.getLat() == null) {
-
-                    ReportingDTO dto = new ReportingDTO();
-                    dto.setUuid(((MemberInfo) getApplicationContext()).getUuid());
-                    dto.setCallsign(((MemberInfo) getApplicationContext()).getCallsign());
-                    dto.setStatus(((MemberInfo) getApplicationContext()).getStatus());
-                    dto.setColor(((MemberInfo) getApplicationContext()).getColor());
+                ReportingDTO dto = new ReportingDTO();
+                dto.setUuid(    gMemberInfo.getString("uuid", null));
+                dto.setCallsign(gMemberInfo.getString("callsign", null));
+                dto.setStatus(  gMemberInfo.getString("status", null));
+                dto.setColor(   gMemberInfo.getString("color", null));
+                dto.setMsg(     gMemberInfo.getString("msg", null));
 
                     dto.setLat(loc.getLatitude());
                     dto.setLang(loc.getLongitude());
@@ -262,27 +255,6 @@ public class ReportingService extends Service {
                     dto.setReporttime(formattedDate);
 
                     sqlHelper.insReporting(dto);
-
-//                } else {
-//
-//                    // SQLite 저장
-//                    // SQLite Update 처리
-//                    SQLiteHelper sqlHelper = new SQLiteHelper(ReportingService.this, null, SQLiteHelper.dbVersion);
-//
-//                    ReportingDTO dto = new ReportingDTO();
-//                    dto.setUuid(((MemberInfo) getApplicationContext()).getUuid());
-//                    dto.setLat(loc.getLatitude());
-//                    dto.setLang(loc.getLongitude());
-//                    dto.setSpeed(Float.toString(loc.getSpeed()));
-//                    dto.setDirection(Float.toString(loc.getBearing()));
-//
-//                    Calendar c = Calendar.getInstance();
-//                    SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-//                    String formattedDate = df.format(c.getTime());
-//                    dto.setReporttime(formattedDate);
-//
-//                    sqlHelper.setReporting(dto);
-//                }
             }
         }
 

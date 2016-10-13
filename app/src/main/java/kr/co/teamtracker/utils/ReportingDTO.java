@@ -25,8 +25,38 @@ public class ReportingDTO {
 
     private String color;
 
+    private Double goallat;
+
+    private Double goallang;
+
+    private String msg;
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+
     public String getColor() {
         return color;
+    }
+
+    public Double getGoallat() {
+        return goallat;
+    }
+
+    public void setGoallat(Double goallat) {
+        this.goallat = goallat;
+    }
+
+    public Double getGoallang() {
+        return goallang;
+    }
+
+    public void setGoallang(Double goallang) {
+        this.goallang = goallang;
     }
 
     public void setColor(String color) {

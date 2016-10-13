@@ -5,7 +5,9 @@
     android:layout_height="fill_parent"
     android:gravity="top|center"
     android:background="@drawable/background"
-    android:weightSum="1">
+    android:weightSum="1"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
 
     <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="300dp"
@@ -15,37 +17,37 @@
         android:paddingTop="10dp"
         android:paddingBottom="10dp">
 
-        <Spinner
-            android:layout_width="50dp"
-            android:layout_height="30dp"
-            android:id="@+id/sp_color"
-            android:spinnerMode="dropdown"
-            android:layout_rowSpan="3"
-            android:layout_gravity="center" />
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="CallSign :"
+            android:text="CALLSIGN "
             android:id="@+id/tv_callsign"
             android:textSize="16dp"
             android:layout_weight="0.10"
-            android:padding="3dp"
+            android:padding="2dp"
             android:textColor="@color/colorPrimaryDark"
             />
 
         <EditText
-            android:layout_width="100dp"
+            android:layout_width="90dp"
             android:layout_height="wrap_content"
             android:id="@+id/et_callsign"
             android:singleLine="true"
             android:background="#ffffff"
             android:maxLength="6"
             android:textSize="16dp"
-            android:hint="ex) unit01"
+            android:hint="ex) rae"
             android:inputType="text"
             android:digits="abcdefghijklmnopqrstuvwxyz0123456789"
             android:padding="2dp" />
+
+        <Spinner
+            android:layout_width="50dp"
+            android:layout_height="30dp"
+            android:id="@+id/sp_color"
+            android:spinnerMode="dropdown"
+            android:layout_gravity="center"
+            android:layout_marginRight="10dp"/>
 
         <Button android:id="@+id/btn_registration"
             android:layout_width="60dp"
@@ -56,7 +58,14 @@
 
         <android.support.v4.widget.Space
             android:layout_height="3dp"
-            android:layout_columnSpan="2"
+            />
+
+        <android.support.v4.widget.Space
+            android:layout_height="3dp"
+            />
+
+        <android.support.v4.widget.Space
+            android:layout_height="3dp"
             />
 
         <android.support.v4.widget.Space
@@ -66,10 +75,10 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TeamID :"
+            android:text="TEAM "
             android:id="@+id/tv_teamid"
             android:textSize="16dp"
-            android:padding="0dp"
+            android:padding="2dp"
             android:textColor="@color/colorPrimaryDark"
             />
 
@@ -84,7 +93,8 @@
             android:textSize="16dp"
             android:padding="2dp"
             android:hint="ex) myteam"
-            android:digits="abcdefghijklmnopqrstuvwxyz0123456789" />
+            android:digits="abcdefghijklmnopqrstuvwxyz0123456789"
+            android:layout_columnSpan="2"/>
 
         <Button android:id="@+id/btn_teamjoin"
             android:layout_width="60dp"
@@ -92,11 +102,11 @@
             android:text="JOIN"
             android:background="@drawable/button_rounded"
             android:layout_gravity="center" />
-
+<!--
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Status"
+            android:text="STATUS"
             android:id="@+id/tv_status"
             android:textSize="16dp"
             android:layout_weight="0.10"
@@ -109,7 +119,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Interval"
+            android:text="INTERVAL"
             android:id="@+id/tv_interval"
             android:textSize="16dp"
             android:layout_weight="0.10"
@@ -134,6 +144,7 @@
             android:spinnerMode="dropdown"
             android:layout_columnSpan="2"
             android:layout_gravity="center" />
+            -->
     </GridLayout>
 
     <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -170,14 +181,40 @@
             android:background="@drawable/button_rounded" />
     </GridLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
+    <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:text="My TeamList"
-        android:textColor="@color/colorPrimaryDark"
-        android:textSize="16dp"
-        android:id="@+id/tv_myteamlist"
-        android:paddingTop="10dp" />
+        android:layout_gravity="center|top"
+        android:columnCount="3"
+        android:padding="5dp">
+
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="         "
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="16dp"
+            android:paddingTop="20dp" />
+
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="TEAM LIST"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="16dp"
+            android:id="@+id/tv_myteamlist"
+            android:paddingTop="20dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="tracking"
+            android:textColor="#FF0000"
+            android:textSize="10dp"
+            android:id="@+id/tv_status"
+            android:layout_gravity="right"
+            android:paddingTop="20dp" />
+    </GridLayout>
 
     <ListView
         android:layout_width="300dp"

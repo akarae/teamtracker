@@ -40,6 +40,7 @@ public class MyGcmListenerService extends GcmListenerService {
         String sTeamid     = new String();
         String sStatus     = new String();
         String sColor      = "169fed";
+        String sMsg        = new String();
 
         Double sLat        = 0.0;
         Double sLang       = 0.0;
@@ -47,6 +48,8 @@ public class MyGcmListenerService extends GcmListenerService {
         String sDirection  = new String();
         String sSpeed      = new String();
 
+        Double sGoallat    = 0.0;
+        Double sGoallang   = 0.0;
 
         String sFlag       = new String();
 
@@ -54,9 +57,9 @@ public class MyGcmListenerService extends GcmListenerService {
 
             JSONObject jsonObj = new JSONObject(data.getString("custom_key1"));
 
-            sFlag       = jsonObj.getString("flag"); // R:Reporting, T:TeamRegist, D:TeamDelete
+            sFlag       = jsonObj.getString("flag"); // R:Reporting, T:TeamRegist, D:TeamDelete, G:GoalUpdate
 
-            if (sFlag.equals("R")) { // R:Reporting, T:TeamRegist, D:TeamDelete
+            if (sFlag.equals("R")) {
                 sUuid       = jsonObj.getString("uuid");
                 sCallsign   = jsonObj.getString("callsign");
                 sStatus     = jsonObj.getString("status");
@@ -66,36 +69,41 @@ public class MyGcmListenerService extends GcmListenerService {
                 sDirection  = jsonObj.getString("direction");
                 sSpeed      = jsonObj.getString("speed");
                 sColor      = jsonObj.getString("color");
+                sMsg        = jsonObj.getString("msg");
             }
 
-            if (sFlag.equals("T") || sFlag.equals("D")) { // R:Reporting, T:TeamRegist, D:TeamDelete
+            if (sFlag.equals("T") || sFlag.equals("D")) {
                 sUuid       = jsonObj.getString("uuid");
                 sTeamid     = jsonObj.getString("teamid");
+            }
+
+            if (sFlag.equals("G")) {
+                sTeamid     = jsonObj.getString("teamid");
+                sGoallat    = jsonObj.getDouble("goallat");
+                sGoallang   = jsonObj.getDouble("goallang");
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        Log.d(TAG, "From: "        + from);
-        Log.d(TAG, "Title: "       + title);
-        Log.d(TAG, "Message: "     + message);
-        Log.d(TAG, "callsign: "    + sCallsign);
-        Log.d(TAG, "teamid: "      + sTeamid);
-        Log.d(TAG, "sUuid: "       + sUuid);
-        Log.d(TAG, "sLat: "        + sLat);
-        Log.d(TAG, "sLang: "       + sLang);
-        Log.d(TAG, "sReporttime: " + sReporttime);
-        Log.d(TAG, "sDirection: "  + sDirection);
-        Log.d(TAG, "sSpeed: "      + sSpeed);
-        Log.d(TAG, "sStatus: "     + sStatus);
-        Log.d(TAG, "sColor:"       + sColor);
-        Log.d(TAG, "sFlag:"        + sFlag);
-
-        // GCM으로 받은 메세지를 디바이스에 알려주는 sendNotification()을 호출한다.
-        // todo
-        // 신규멤버가 들어올 때만 noti 처리하도록 분기
-//        sendNotification(title, message);
+//        Log.d(TAG, "From: "        + from);
+//        Log.d(TAG, "Title: "       + title);
+//        Log.d(TAG, "Message: "     + message);
+//        Log.d(TAG, "callsign: "    + sCallsign);
+//        Log.d(TAG, "teamid: "      + sTeamid);
+//        Log.d(TAG, "sUuid: "       + sUuid);
+//        Log.d(TAG, "sLat: "        + sLat);
+//        Log.d(TAG, "sLang: "       + sLang);
+//        Log.d(TAG, "sReporttime: " + sReporttime);
+//        Log.d(TAG, "sDirection: "  + sDirection);
+//        Log.d(TAG, "sSpeed: "      + sSpeed);
+//        Log.d(TAG, "sStatus: "     + sStatus);
+//        Log.d(TAG, "sColor:"       + sColor);
+//        Log.d(TAG, "sFlag:"        + sFlag);
+//        Log.d(TAG, "sGoallat:"     + sGoallat);
+//        Log.d(TAG, "sGoallang:"    + sGoallang);
+//        Log.d(TAG, "sMsg:"         + sMsg);
 
         // SQLite Update 처리
         SQLiteHelper sqlHelper = new SQLiteHelper(MyGcmListenerService.this, null, SQLiteHelper.dbVersion);
@@ -114,6 +122,7 @@ public class MyGcmListenerService extends GcmListenerService {
             dto.setDirection(sDirection);
             dto.setStatus(sStatus);
             dto.setColor(sColor);
+            dto.setMsg(sMsg);
 
             sqlHelper.insReporting(dto);
         }
@@ -131,6 +140,19 @@ public class MyGcmListenerService extends GcmListenerService {
 
             sqlHelper.delTeamOne(dto);
         }
+
+        if (sFlag.equals("G")) { // R:Reporting, T:TeamRegist, D:TeamDelete, G:GoalUpdate
+            dto.setTeamid(sTeamid);
+            dto.setGoallat(sGoallat);
+            dto.setGoallang(sGoallang);
+
+            sqlHelper.setTeamGoal(dto);
+        }
+
+        // Maps Update 처리
+        Intent intent = new Intent();
+        intent.setAction(QuickstartPreferences.REPORT_NOTIFICATION);
+        sendBroadcast(intent);
     }
 
 

@@ -1,47 +1,34 @@
 package kr.co.teamtracker;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Resources;
-import android.database.sqlite.SQLiteDatabase;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.location.Address;
 import android.location.Criteria;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.TranslateAnimation;
-import android.widget.AbsListView;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.GridLayout;
-import android.widget.ImageView;
+import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,21 +37,23 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
-import kr.co.teamtracker.utils.MemberInfo;
+import cz.msebera.android.httpclient.Header;
+import kr.co.teamtracker.gcm.QuickstartPreferences;
+import kr.co.teamtracker.httpclient.GCMHttpClient;
 import kr.co.teamtracker.utils.ReportingDTO;
 import kr.co.teamtracker.utils.ReportingService;
-import kr.co.teamtracker.utils.RoundImage;
 import kr.co.teamtracker.utils.SQLiteHelper;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -89,11 +78,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     int markerPosition = 0;
 
+    Button mBtnGoal;
     Button mBtnSetupGoal;
-
     Button mBtnToggleShow;
+    Button mBtnSendMsg;
+
+    EditText mEtMsg;
 
     boolean mIsShow = true;
+
+    private double mGoallat;
+    private double mGoallang;
+
+    private double mGoallatOrg;
+    private double mGoallangOrg;
+
+    private Circle mCircleBig;
+    private Circle mCircleSmall;
+
+    private boolean mIsGoalIn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +112,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         llStatus = (LinearLayout) findViewById(R.id.ll_status);
 
+        mBtnGoal = (Button) findViewById(R.id.btn_map_goal);
+        mBtnGoal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (mIsShow) {
+                    try {
+                        if (mGoallang != 0.0) {
+                            LatLng latLng = new LatLng(mGoallat, mGoallang);
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
+                        }
+
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
         mBtnSetupGoal = (Button) findViewById(R.id.btn_map_setup);
         mBtnSetupGoal.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -122,6 +145,67 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+                }
+            }
+        });
+
+        mEtMsg = (EditText) findViewById(R.id.et_map_msg);
+
+        mBtnSendMsg = (Button) findViewById(R.id.btn_map_sendmsg);
+        mBtnSendMsg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                String msg = mEtMsg.getText().toString();
+
+                if (msg != null && msg.length() > 0) {
+
+                    SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
+                    // request parameter 설정
+                    RequestParams params = new RequestParams();
+
+                    params.add("uuid", gMemberInfo.getString("uuid", null));
+                    params.add("tokenid", gMemberInfo.getString("tokenid", null));
+                    params.add("callsign", gMemberInfo.getString("callsign", null));
+                    params.add("status", gMemberInfo.getString("status", null));
+                    params.add("color", gMemberInfo.getString("color", null));
+                    params.add("msg", msg);
+
+                    SharedPreferences.Editor editor = gMemberInfo.edit();
+                    editor.putString("msg", msg);
+                    editor.commit();
+
+                    GCMHttpClient.get("/gcm/regist", params, new AsyncHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+
+                            mEtMsg.setText("");
+                            InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                            inputManager.hideSoftInputFromWindow(mEtMsg.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
+                            String responseMsg = new String(responseBody);
+
+                            Log.i(TAG, "statusCode is : " + statusCode);
+                            Log.i(TAG, "responseBody is : " + responseMsg);
+
+                            if (responseMsg.equals(QuickstartPreferences.MEMBERS_SAVE_INSERT_SUCCESS)
+                                    || responseMsg.equals(QuickstartPreferences.MEMBERS_SAVE_UPDATE_SUCCESS)) {
+
+                            } else {
+
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+                            String errorMsg = error.getMessage();
+                            Throwable errorCause = error.getCause();
+                            StackTraceElement stackTraceElement[] = error.getStackTrace();
+
+                            Log.i(TAG, "errorMsg is : " + errorMsg);
+                        }
+                    });
                 }
             }
         });
@@ -146,10 +230,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     llStatus.startAnimation(animate2);
                     llStatus.invalidate();
 
-                    mBtnSetupGoal.setVisibility(View.GONE);
-                    TranslateAnimation animate3 = new TranslateAnimation(0,-mBtnSetupGoal.getWidth(),0,0);
+                    mBtnGoal.setVisibility(View.GONE);
+                    TranslateAnimation animate3 = new TranslateAnimation(0,-mBtnGoal.getWidth(),0,0);
                     animate3.setDuration(500);
-                    mBtnSetupGoal.startAnimation(animate3);
+                    mBtnGoal.startAnimation(animate3);
+                    mBtnGoal.invalidate();
+
+                    mBtnSetupGoal.setVisibility(View.GONE);
+                    TranslateAnimation animate4 = new TranslateAnimation(0,-mBtnSetupGoal.getWidth(),0,0);
+                    animate4.setDuration(500);
+                    mBtnSetupGoal.startAnimation(animate4);
                     mBtnSetupGoal.invalidate();
 
                     mBtnToggleShow.setText(">>");
@@ -167,10 +257,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     llStatus.startAnimation(animate2);
                     llStatus.invalidate();
 
-                    mBtnSetupGoal.setVisibility(View.VISIBLE);
-                    TranslateAnimation animate3 = new TranslateAnimation(-mBtnSetupGoal.getWidth(),0,0,0);
+                    mBtnGoal.setVisibility(View.VISIBLE);
+                    TranslateAnimation animate3 = new TranslateAnimation(-mBtnGoal.getWidth(),0,0,0);
                     animate3.setDuration(500);
-                    mBtnSetupGoal.startAnimation(animate3);
+                    mBtnGoal.startAnimation(animate3);
+                    mBtnGoal.invalidate();
+
+                    mBtnSetupGoal.setVisibility(View.VISIBLE);
+                    TranslateAnimation animate4 = new TranslateAnimation(-mBtnSetupGoal.getWidth(),0,0,0);
+                    animate4.setDuration(500);
+                    mBtnSetupGoal.startAnimation(animate4);
                     mBtnSetupGoal.invalidate();
 
                     mBtnToggleShow.setText("<<");
@@ -183,7 +279,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         sqlHelper = new SQLiteHelper(MapsActivity.this, null, SQLiteHelper.dbVersion);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.maps);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
 
@@ -261,10 +357,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //to receive event from our service
         myReceiver = new MyReceiver();
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ReportingService.MY_ACTION);
+        intentFilter.addAction(QuickstartPreferences.REPORT_NOTIFICATION);
         registerReceiver(myReceiver, intentFilter);
 
         super.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+
+        super.onResume();
+
+        if (markerList != null && markerList.size() > 0) {
+            updatePosition();
+        }
     }
 
     @Override
@@ -280,11 +386,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         public void onReceive(Context arg0, Intent arg1) {
 
-            String reportResult = arg1.getStringExtra("reportResult");
-
-            if (!reportResult.equals("success")) {
-                Toast.makeText(MapsActivity.this, reportResult, Toast.LENGTH_LONG).show();
-            }
+//            String reportResult = arg1.getStringExtra("reportResult");
+//
+//            if (!reportResult.equals("success")) {
+//                Toast.makeText(MapsActivity.this, reportResult, Toast.LENGTH_LONG).show();
+//            }
 
             // 서버 전송여부와 무관하게 화면 UI는 갱신처리
             updatePosition();
@@ -293,7 +399,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void updatePosition() {
 
-        //
         if (markerList != null && markerList.size() > 0) {
             // 삭제 후 재설정
             for (int i = 0; i < markerList.size(); i++) {
@@ -328,6 +433,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         for (int i = 0; i < listDto.size(); i++) {
 
             ReportingDTO retDTO = listDto.get(i);
+
+            mGoallat  = retDTO.getGoallat();
+            mGoallang = retDTO.getGoallang();
 
             // icon / text color setting start
             if (retDTO.getColor().equals("06ff00") ) {
@@ -372,53 +480,51 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // location setting
             LatLng position = new LatLng(retDTO.getLat(), retDTO.getLang());
 
-//            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), imgId).copy(Bitmap.Config.ARGB_8888, true);
-//            bitmap = Bitmap.createScaledBitmap(bitmap, bitmap.getWidth() / 2, bitmap.getHeight() / 2, false);
-//
-//            Canvas canvas = new Canvas(bitmap);
-//            Paint paint = new Paint();
-//            paint.setColor(Color.BLACK);
-//            paint.setTextSize(24);
-//            paint.setTypeface(Typeface.DEFAULT_BOLD);
-//            paint.setTextAlign(Paint.Align.CENTER);
-//            paint.setShadowLayer(2, 2, 2, Color.WHITE);
-//            canvas.drawText(retDTO.getCallsign(), canvas.getWidth() / 2, 24, paint);
-
             View marker_root_view = LayoutInflater.from(this).inflate(R.layout.marker_layout, null);
 
             TextView tv_marker = (TextView) marker_root_view.findViewById(R.id.tv_marker);
             tv_marker.setText(retDTO.getCallsign());
 
-//            String sDirection = new String();
-//            if (retDTO.getDirection().equals("0.0")) {
-//                sDirection = "000";
-//            } else {
-//                sDirection = retDTO.getDirection();
-//            }
-//
-//            String sSpeed = new String();
-//            if (retDTO.getSpeed().equals("0.0")) {
-//                sSpeed = "000";
-//            } else {
-//                sSpeed = retDTO.getSpeed();
-//            }
-
             TextView tv_marker_info = (TextView) marker_root_view.findViewById(R.id.tv_marker_info);
-            tv_marker_info.setText(retDTO.getDirection() + "/" + retDTO.getSpeed());
+            //tv_marker_info.setText(retDTO.getDirection() + "/" + retDTO.getSpeed());
+            String sMsg = retDTO.getMsg();
+            if (sMsg == null || sMsg.length() < 1) {
+                sMsg = "-";
+            }
+            tv_marker_info.setText(sMsg);
 
             TextView tv_marker_img = (TextView) marker_root_view.findViewById(R.id.tv_marker_img);
             tv_marker_img.setBackgroundResource(imgId);
 
             Bitmap newBitmap = createDrawableFromView(this, marker_root_view);
 
+            // 거리 계산
+            double distance = 0;
+            if (mGoallang != 0.0) {
+
+                LatLng goalPosition = new LatLng(mGoallat, mGoallang);
+                distance = CalculationByDistance(position, goalPosition);
+
+                // 목표지점으로부터 특정거리 이내로 접근 시 서비스 종료처리
+                SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
+                String callsign = gMemberInfo.getString("callsign", null);
+                if (retDTO.getCallsign().equals(callsign) && distance <= 0.05) { //50m
+                    mIsGoalIn = true;
+                } else {
+                    mIsGoalIn = false;
+                }
+            }
+
             Marker marker = mMap.addMarker(new MarkerOptions()
                     .position(position)
                     .icon(BitmapDescriptorFactory.fromBitmap(newBitmap))
                     .title(retDTO.getCallsign() + "'s Information")
-                    .snippet("report time : "   + retDTO.getReporttime() + "\n"
-                            + "direction : "    + retDTO.getDirection() + "\n"
-                            + "speed : "        + retDTO.getSpeed() + "\n"
-                            + "status : "       + retDTO.getStatus())
+                    .snippet("report time : " + retDTO.getReporttime() + "\n"
+                            + "direction : " + retDTO.getDirection() + "\n"
+                            + "speed : " + retDTO.getSpeed() + "\n"
+                            + "status : " + retDTO.getStatus() + "\n"
+                            + "distance : " + distance + "km" + "\n"
+                            + "msg : " + retDTO.getMsg())
                     .anchor(0.18f, 0.55f));
 
             // 위치검증용
@@ -479,11 +585,39 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
+        if (mGoallang != 0.0) {
+
+            // 최초생성이거나, 변경이 된 경우에만 처리
+            if (mGoallat != mGoallatOrg || mGoallang != mGoallangOrg) {
+
+                if (mCircleBig != null) {
+                    mCircleBig.remove();
+                }
+
+                if (mCircleSmall != null) {
+                    mCircleSmall.remove();
+                }
+
+                LatLng latLng = new LatLng(mGoallat, mGoallang);
+                mCircleBig   = mMap.addCircle(new CircleOptions().center(latLng).fillColor(Color.argb(80, 55, 157, 243)).radius(100.0).strokeColor(Color.argb(100, 55, 157, 243)).strokeWidth(2f)); // 100meter
+                mCircleSmall = mMap.addCircle(new CircleOptions().center(latLng).fillColor(Color.argb(80, 55, 157, 243)).radius(5.0).strokeColor(Color.argb(100, 55, 157, 243)).strokeWidth(2f)); // 5meter
+            }
+
+            mGoallatOrg  = mGoallat;
+            mGoallangOrg = mGoallang;
+        }
+
         if (isInitialPostion) {
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(positionTop, 14));
             isInitialPostion = false;
         } else {
 //            mMap.moveCamera(CameraUpdateFactory.newLatLng(positionTop));
+        }
+
+        // 목표지점으로부터 특정거리 이내로 접근 시 서비스 종료처리
+        if (mIsGoalIn) {
+            Intent intent = new Intent(MapsActivity.this, ReportingService.class);
+            stopService(intent);
         }
 
     }
@@ -519,5 +653,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         view.draw(canvas);
 
         return bitmap;
+    }
+
+    public double CalculationByDistance(LatLng StartP, LatLng EndP) {
+        int Radius = 6371;// radius of earth in Km
+        double lat1 = StartP.latitude;
+        double lat2 = EndP.latitude;
+        double lon1 = StartP.longitude;
+        double lon2 = EndP.longitude;
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1))
+                * Math.cos(Math.toRadians(lat2)) * Math.sin(dLon / 2)
+                * Math.sin(dLon / 2);
+        double c = 2 * Math.asin(Math.sqrt(a));
+        double valueResult = Radius * c;
+        double km = valueResult / 1;
+        DecimalFormat newFormat = new DecimalFormat("####");
+        int kmInDec = Integer.valueOf(newFormat.format(km));
+        double meter = valueResult % 1000;
+        int meterInDec = Integer.valueOf(newFormat.format(meter));
+
+        double rounded = (double) Math.round(meter * 100) / 100;
+
+//        Log.i("Radius Value", "" + valueResult + "   KM  " + kmInDec + " Meter   " + meterInDec + " MeterRounded   " + rounded);
+
+        return rounded;
     }
 }

@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">TeamTracker</string>
+    <string name="setup_name">TeamTracker Setup</string>
     <string name="title_activity_maps">TeamTracker_Map</string>
     <string-array name="status_array">
         <item>NORMAL</item>
@@ -11,13 +12,8 @@
     </string-array>
 
     <string-array name="interval_array">
-        <item>10SEC</item>
-        <item>30SEC</item>
         <item>1MIN</item>
-        <item>3MIN</item>
         <item>5MIN</item>
         <item>10MIN</item>
     </string-array>
-    <string name="title_activity_setup">TeamTracker_Setup</string>
-    <string name="action_settings">Settings</string>
 </resources>

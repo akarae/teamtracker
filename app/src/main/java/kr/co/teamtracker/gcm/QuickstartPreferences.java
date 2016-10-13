@@ -4,6 +4,9 @@ package kr.co.teamtracker.gcm;
  * Created by akarae on 2016-03-04.
  */
 public class QuickstartPreferences {
+
+    public static final String REPORT_NOTIFICATION = "REPORT_NOTIFICATION";
+
     public static final String REGISTRATION_COMPLETE = "registrationComplete";
 
     // RerportingService 내에서 처리되는 결과값
@@ -87,4 +90,9 @@ public class QuickstartPreferences {
     //teams teams.findOne noResult
     public static final String TEAMS_TEAMID_NOT_EXISTS = "TEAMS_TEAMID_NOT_EXISTS";
     // TeamId Apply시 처리되는 결과값
+
+    //teams teams.update_goal success
+    public static final String TEAMS_GOAL_UPDATE_SUCCESS = "TEAMS_GOAL_UPDATE_SUCCESS";
+
+    public static final String TEAMS_GOAL_UPDATE_ERROR = "TEAMS_GOAL_UPDATE_ERROR";
 }

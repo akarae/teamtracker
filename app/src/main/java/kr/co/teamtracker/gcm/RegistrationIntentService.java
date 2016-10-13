@@ -3,6 +3,7 @@ package kr.co.teamtracker.gcm;
 import android.annotation.SuppressLint;
 import android.app.IntentService;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -12,7 +13,6 @@ import com.google.android.gms.iid.InstanceID;
 import java.io.IOException;
 
 import kr.co.teamtracker.R;
-import kr.co.teamtracker.utils.MemberInfo;
 import kr.co.teamtracker.utils.ReportingDTO;
 import kr.co.teamtracker.utils.SQLiteHelper;
 
@@ -61,19 +61,23 @@ public class RegistrationIntentService extends IntentService {
                 Log.i(TAG, "GCM Registration Token: " + token);
 
                 // 전역변수 선언
-                MemberInfo memberInfo = (MemberInfo) getApplicationContext();
-                memberInfo.setTokenid(token);
+                SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
+
+                SharedPreferences.Editor editor = gMemberInfo.edit();
+                editor.putString("tokenid", token);
+                editor.commit();
 
                 // SQLite 등록처리 및 WebSerrver 등록
                 ReportingDTO reportingDTO = new ReportingDTO();
-                reportingDTO.setUuid(memberInfo.getUuid());
-                reportingDTO.setCallsign(memberInfo.getCallsign());
-                reportingDTO.setTeamid(memberInfo.getTeamid());
-                reportingDTO.setStatus(memberInfo.getStatus());
-                reportingDTO.setColor(memberInfo.getColor());
+                reportingDTO.setUuid(gMemberInfo.getString("uuid", null));
+                reportingDTO.setCallsign(gMemberInfo.getString("callsign", null));
+                reportingDTO.setTeamid(gMemberInfo.getString("teamid", null));
+                reportingDTO.setStatus(gMemberInfo.getString("status", null));
+                reportingDTO.setColor(gMemberInfo.getString("color", null));
+                reportingDTO.setMsg(gMemberInfo.getString("msg", null));
 
                 // 조회결과가 존재하지 않는 경우에만 insert
-                ReportingDTO retDTO = sqlHelper.getReporting(memberInfo.getUuid());
+                ReportingDTO retDTO = sqlHelper.getReporting(gMemberInfo.getString("uuid", null));
                 if (retDTO == null || retDTO.getCallsign() == null) {
 
                     sqlHelper.insReporting(reportingDTO);

@@ -2,9 +2,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 
 android {
-    defaultConfig {
-        multiDexEnabled true
-    }
     signingConfigs {
         config {
             keyAlias 'teamtrackerkey'
@@ -19,8 +16,8 @@ android {
         applicationId "kr.co.teamtracker"
         minSdkVersion 15
         targetSdkVersion 15
-        versionCode 4
-        versionName "1.3"
+        versionCode 9
+        versionName "1.8"
         signingConfig signingConfigs.config
     }
     buildTypes {
@@ -50,5 +47,4 @@ dependencies {
     compile 'com.google.android.gms:play-services-appindexing:8.1.0'
     compile 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
     compile 'com.google.android.gms:play-services:8.4.0'
-    compile 'com.android.support:design:23.2.0'
 }

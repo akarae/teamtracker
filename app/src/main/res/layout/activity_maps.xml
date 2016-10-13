@@ -1,11 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent" android:layout_height="fill_parent"
     android:id="@+id/map_layout">
+
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:map="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/maps"
+        android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -23,12 +25,13 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_marginTop="60dp"
+        android:textColor="#FFFFFF"
         />
 
     <TextView
         android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:text="[Member List]"
+        android:text="[MEMBER LIST]"
         android:id="@+id/tv_map_title"
         android:background="@drawable/textview_rounded"
         android:textSize="12dp"
@@ -56,10 +59,52 @@
         style="?android:attr/buttonStyleSmall"
         android:layout_width="120dp"
         android:layout_height="20dp"
-        android:text="SetUp GOAL"
-        android:id="@+id/btn_map_setup"
+        android:text="GOAL"
+        android:id="@+id/btn_map_goal"
         android:layout_below="@+id/ll_status"
         android:layout_alignParentLeft="true"
-        android:background="@drawable/button_roundedalpha"/>
+        android:background="@drawable/button_roundedalpha"
+        android:textColor="#FFFFFF"/>
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="120dp"
+        android:layout_height="20dp"
+        android:text="SetUp GOAL"
+        android:id="@+id/btn_map_setup"
+        android:layout_below="@+id/btn_map_goal"
+        android:layout_alignParentLeft="true"
+        android:background="@drawable/button_rounded"
+        android:textColor="#FFFFFF"/>
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:columnCount="2"
+        android:layout_below="@+id/btn_map_setup"
+        android:paddingBottom="5dp">
+
+        <EditText
+            android:layout_width="310dp"
+            android:layout_height="30dp"
+            android:id="@+id/et_map_msg"
+            android:layout_gravity="bottom|center"
+            android:background="@drawable/layout_rounded_100"
+            android:textSize="14dp"
+            android:paddingLeft="5dp"/>
+
+        <Button
+            android:layout_width="50dp"
+            android:layout_height="30dp"
+            android:text="SEND"
+            android:id="@+id/btn_map_sendmsg"
+            android:layout_gravity="bottom|left"
+            android:background="@drawable/button_rounded"
+            android:textColor="#FFFFFF"/>
+
+    </GridLayout>
+
 
 </RelativeLayout>

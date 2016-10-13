@@ -1,5 +1,6 @@
 package kr.co.teamtracker;
 
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -7,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -30,6 +32,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.appindexing.Action;
@@ -54,7 +57,6 @@ import kr.co.teamtracker.gcm.QuickstartPreferences;
 import kr.co.teamtracker.gcm.RegistrationIntentService;
 import kr.co.teamtracker.httpclient.GCMHttpClient;
 import kr.co.teamtracker.utils.ItemData;
-import kr.co.teamtracker.utils.MemberInfo;
 import kr.co.teamtracker.utils.ReportingDTO;
 import kr.co.teamtracker.utils.ReportingService;
 import kr.co.teamtracker.utils.SQLiteHelper;
@@ -76,6 +78,7 @@ public class MainActivity extends AppCompatActivity  {
 
     private EditText mCallsignEditText;
     private EditText mTeamidEditText;
+    private TextView mStatusText;
 
     private Button mTeamlistButton;
     private ListView mTeamListView;
@@ -133,18 +136,17 @@ public class MainActivity extends AppCompatActivity  {
                 String action = intent.getAction();
 
                 if (action.equals(QuickstartPreferences.REGISTRATION_COMPLETE)) {
-//                    String token = intent.getStringExtra("token");
 
-                    MemberInfo memberInfo = (MemberInfo) getApplicationContext();
-
+                    SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
                     // request parameter 설정
                     RequestParams params = new RequestParams();
 
-                    params.add("uuid",     memberInfo.getUuid());
-                    params.add("tokenid",  memberInfo.getTokenid());
-                    params.add("callsign", memberInfo.getCallsign());
-                    params.add("status",   memberInfo.getStatus());
-                    params.add("color",    memberInfo.getColor());
+                    params.add("uuid",     gMemberInfo.getString("uuid", null));
+                    params.add("tokenid",  gMemberInfo.getString("tokenid", null));
+                    params.add("callsign", gMemberInfo.getString("callsign", null));
+                    params.add("status",   gMemberInfo.getString("status", null));
+                    params.add("color",    gMemberInfo.getString("color", null));
+                    params.add("msg",      gMemberInfo.getString("msg", null));
 
                     GCMHttpClient.get("/gcm/regist", params, new AsyncHttpResponseHandler() {
                         @Override
@@ -224,9 +226,11 @@ public class MainActivity extends AppCompatActivity  {
                 // An item was selected. You can retrieve the selected item using
                 // parent.getItemAtPosition(pos)
 
-                Log.d(TAG, "onItemSelected - pos : " + pos + " id : " + id);
-                MemberInfo memberInfo = (MemberInfo) getApplicationContext();
-                memberInfo.setColor(listSpinnerItem.get(pos).getText());
+                //Log.d(TAG, "onItemSelected - pos : " + pos + " id : " + id);
+                SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
+                SharedPreferences.Editor editor = gMemberInfo.edit();
+                editor.putString("color", listSpinnerItem.get(pos).getText());
+                editor.commit();
             }
 
             public void onNothingSelected(AdapterView<?> parent) {
@@ -235,52 +239,54 @@ public class MainActivity extends AppCompatActivity  {
 
         });
 
-        mSpinnerStatus = (Spinner) findViewById(R.id.sp_status);
-        ArrayAdapter<CharSequence> statusAdapter = ArrayAdapter.createFromResource(this, R.array.status_array, R.layout.spinner_item);
-        statusAdapter.setDropDownViewResource(R.layout.spinner_item);
-        mSpinnerStatus.setAdapter(statusAdapter);
-        mSpinnerStatus.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//        mSpinnerStatus = (Spinner) findViewById(R.id.sp_status);
+//        ArrayAdapter<CharSequence> statusAdapter = ArrayAdapter.createFromResource(this, R.array.status_array, R.layout.spinner_item);
+//        statusAdapter.setDropDownViewResource(R.layout.spinner_item);
+//        mSpinnerStatus.setAdapter(statusAdapter);
+//        mSpinnerStatus.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//
+//            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+//                // An item was selected. You can retrieve the selected item using
+//                // parent.getItemAtPosition(pos)
+//
+//                String item = (String) parent.getItemAtPosition(pos);
+//
+//                Log.d(TAG, "onItemSelected - pos : " + pos + " item : " + item);
+//                SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
+//                SharedPreferences.Editor editor = gMemberInfo.edit();
+//                editor.putString("status", item);
+//                editor.commit();
+//            }
+//
+//            public void onNothingSelected(AdapterView<?> parent) {
+//                // Another interface callback
+//            }
+//
+//        });
 
-            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                // An item was selected. You can retrieve the selected item using
-                // parent.getItemAtPosition(pos)
-
-                String item = (String) parent.getItemAtPosition(pos);
-
-                Log.d(TAG, "onItemSelected - pos : " + pos + " item : " + item);
-                MemberInfo memberInfo = (MemberInfo) getApplicationContext();
-                memberInfo.setStatus(item);
-            }
-
-            public void onNothingSelected(AdapterView<?> parent) {
-                // Another interface callback
-            }
-
-        });
-
-        mSpinnerInterval = (Spinner) findViewById(R.id.sp_interval);
-        ArrayAdapter<CharSequence> intervalAdapter = ArrayAdapter.createFromResource(this, R.array.interval_array, R.layout.spinner_item);
-        intervalAdapter.setDropDownViewResource(R.layout.spinner_item);
-        mSpinnerInterval.setAdapter(intervalAdapter);
-        mSpinnerInterval.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
-            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                // An item was selected. You can retrieve the selected item using
-                // parent.getItemAtPosition(pos)
-
-                String item = (String) parent.getItemAtPosition(pos);
-
-                Log.d(TAG, "onItemSelected - pos : " + pos + " item : " + item);
-
-                //todo interval 설정 후 TrackingService Stop AND Start
-
-            }
-
-            public void onNothingSelected(AdapterView<?> parent) {
-                // Another interface callback
-            }
-
-        });
+//        mSpinnerInterval = (Spinner) findViewById(R.id.sp_interval);
+//        ArrayAdapter<CharSequence> intervalAdapter = ArrayAdapter.createFromResource(this, R.array.interval_array, R.layout.spinner_item);
+//        intervalAdapter.setDropDownViewResource(R.layout.spinner_item);
+//        mSpinnerInterval.setAdapter(intervalAdapter);
+//        mSpinnerInterval.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//
+//            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+//                // An item was selected. You can retrieve the selected item using
+//                // parent.getItemAtPosition(pos)
+//
+//                String item = (String) parent.getItemAtPosition(pos);
+//
+//                Log.d(TAG, "onItemSelected - pos : " + pos + " item : " + item);
+//
+//                //todo interval 설정 후 TrackingService Stop AND Start
+//
+//            }
+//
+//            public void onNothingSelected(AdapterView<?> parent) {
+//                // Another interface callback
+//            }
+//
+//        });
 
         // spinner end
 
@@ -291,12 +297,29 @@ public class MainActivity extends AppCompatActivity  {
         mTeamListView     = (ListView) findViewById(R.id.lv_teamlist);
 
         // 전역변수 선언
-        MemberInfo memberInfo = (MemberInfo) getApplicationContext();
-        String sCallsign = memberInfo.getCallsign();
+        SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
+        String sCallsign = gMemberInfo.getString("callsign", null);
+
         if (sCallsign != null && sCallsign.length() > 0) {
             mCallsignEditText.setText(sCallsign);
-            mTeamidEditText.setText(memberInfo.getTeamid());
-            mSpinner.setSelection(listSpinnerItem.indexOf(memberInfo.getColor()));
+            //mTeamidEditText.setText(gMemberInfo.getString("teamid", null));
+
+            int idx = 0;
+
+            for (int i = 0; i < listSpinnerItem.size(); i++) {
+                if (listSpinnerItem.get(i).getText().equals(gMemberInfo.getString("color", null))) {
+                    idx = i;
+                    break;
+                }
+            }
+
+            //Log.d(TAG, "index is ::::::::: " + idx);
+
+            mSpinner.setSelection(idx);
+
+            InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputManager.hideSoftInputFromWindow(mCallsignEditText.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
             setTeamListView();
         }
 
@@ -336,11 +359,14 @@ public class MainActivity extends AppCompatActivity  {
                 } else {
 
                     // 전역변수 선언
-                    MemberInfo memberInfo = (MemberInfo) getApplicationContext();
-                    memberInfo.setCallsign(etCallsign.toString());
-//                    memberInfo.setTeamid(etTeamid.toString());
-                    if (memberInfo.getStatus() == null || memberInfo.getStatus().length() == 0) {
-                        memberInfo.setStatus("NORMAL");
+                    SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = gMemberInfo.edit();
+                    editor.putString("callsign", etCallsign.toString());
+                    editor.commit();
+
+                    if (gMemberInfo.getString("status", null) == null || gMemberInfo.getString("status", null).length() == 0) {
+                        editor.putString("status", "NORMAL");
+                        editor.commit();
                     }
 
                     // 토큰 획득
@@ -378,12 +404,10 @@ public class MainActivity extends AppCompatActivity  {
 
                 if (mTeamidEditText.getText() != null && mTeamidEditText.getText().toString().length() > 0) {
 
-                    MemberInfo memberInfo = (MemberInfo) getApplicationContext();
-
                     // request parameter 설정
                     RequestParams params = new RequestParams();
-
-                    params.add("uuid",   memberInfo.getUuid());
+                    SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
+                    params.add("uuid",   gMemberInfo.getString("uuid", null));
                     params.add("teamid", mTeamidEditText.getText().toString());
                     params.add("flag", "J");
 
@@ -426,8 +450,10 @@ public class MainActivity extends AppCompatActivity  {
                                 Toast.makeText(getApplicationContext(), "team registration success", Toast.LENGTH_SHORT).show();
 
                                 // team 등록
-                                MemberInfo memberInfo = (MemberInfo) getApplicationContext();
-                                memberInfo.setTeamid(mTeamidEditText.getText().toString());
+                                SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
+                                SharedPreferences.Editor editor = gMemberInfo.edit();
+                                editor.putString("teamid", mTeamidEditText.getText().toString());
+                                editor.commit();
 
 //                                ReportingDTO reportingDTO = new ReportingDTO();
 //                                reportingDTO.setUuid(memberInfo.getUuid());
@@ -452,15 +478,20 @@ public class MainActivity extends AppCompatActivity  {
                                         memberDto.setDirection(memberJSON.getString("direction"));
                                         memberDto.setSpeed(memberJSON.getString("speed"));
                                         memberDto.setColor(memberJSON.getString("color"));
+                                        memberDto.setMsg(memberJSON.getString("msg"));
                                         sqlHelper.insReporting(memberDto);
 
                                         // team 정보
-                                        memberDto.setTeamid(memberInfo.getTeamid());
+                                        memberDto.setTeamid(gMemberInfo.getString("teamid", null));
                                         sqlHelper.insTeam(memberDto);
                                     }
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
+
+                                // teamid 삭제 후 리스트 재조회
+                                mTeamidEditText.setText("");
+                                setTeamListView();
                             }
                         }
 
@@ -491,125 +522,6 @@ public class MainActivity extends AppCompatActivity  {
             }
         });
 
-
-//        mTeamRegistrationButton = (Button) findViewById(R.id.btn_teamregistration);
-//        mTeamRegistrationButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//
-//
-//                Editable etCallsign = mCallsignEditText.getText();
-//
-//                if (etCallsign == null || etCallsign.toString().equals("") || etCallsign.toString().length() == 0) {
-//
-//                    AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
-//                    alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            dialog.dismiss();     //닫기
-//                        }
-//                    });
-//                    alert.setMessage("regist your CallSign first");
-//                    alert.show();
-//                }
-//
-//
-//                if (mTeamidEditText.getText() != null && mTeamidEditText.getText().toString().length() > 0) {
-//
-//                    MemberInfo memberInfo = (MemberInfo) getApplicationContext();
-//
-//                    // request parameter 설정
-//                    RequestParams params = new RequestParams();
-//
-//                    params.add("tokenid",  memberInfo.getTokenid());
-//                    params.add("teamid", mTeamidEditText.getText().toString());
-//                    params.add("flag", "N");
-//
-//                    GCMHttpClient.get("/gcm/registteam", params, new AsyncHttpResponseHandler() {
-//                        @Override
-//                        public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-//
-//                            String responseMsg = new String(responseBody);
-//
-//                            Log.i(TAG, "statusCode is : " + statusCode);
-//                            Log.i(TAG, "responseBody is : " + responseMsg);
-//
-//                            if (responseMsg.equals(QuickstartPreferences.TEAMS_TEAMID_ALEADY_EXISTS)) {
-//
-//                                AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
-//                                alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-//                                    @Override
-//                                    public void onClick(DialogInterface dialog, int which) {
-//                                        dialog.dismiss();     //닫기
-//                                    }
-//                                });
-//                                alert.setMessage("TeamID aleady exists!!");
-//                                alert.show();
-//
-//                            }
-//                            if (responseMsg.equals(QuickstartPreferences.TEAMS_GCM_SEND_SUCCESS)) {
-//                                Toast.makeText(getApplicationContext(), "team registration success", Toast.LENGTH_SHORT).show();
-//
-//                                // team 등록
-//                                MemberInfo memberInfo = (MemberInfo) getApplicationContext();
-//
-//                                memberInfo.setTeamid(mTeamidEditText.getText().toString());
-//
-//                                ReportingDTO reportingDTO = new ReportingDTO();
-//                                reportingDTO.setTokenid(memberInfo.getTokenid());
-//                                reportingDTO.setTeamid(memberInfo.getTeamid());
-//                                sqlHelper.insTeam(reportingDTO);
-//                            }
-//
-//                        }
-//
-//                        @Override
-//                        public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-//                            // nullable
-////                        String responseMsg = responseBody.toString();
-//
-//                            String errorMsg = error.getMessage();
-//                            Throwable errorCause = error.getCause();
-//                            StackTraceElement stackTraceElement[] = error.getStackTrace();
-//
-//                            Log.i(TAG, "errorMsg is : " + errorMsg);
-//
-//                            Toast.makeText(getApplicationContext(), "team registration failed", Toast.LENGTH_SHORT).show();
-//
-//                        }
-//                    });
-//
-//                } else {
-//                    AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
-//                    alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            dialog.dismiss();     //닫기
-//                        }
-//                    });
-//                    alert.setMessage("input your TeamId");
-//                    alert.show();
-//                }
-//            }
-//        });
-
-
-//        // MAP
-//        Button btnMap = (Button) findViewById(R.id.btn_map);
-//        btnMap.setOnClickListener(new View.OnClickListener() {
-//            /**
-//             * 버튼을 클릭하면 토큰을 가져오는 getInstanceIdToken() 메소드를 실행한다.
-//             *
-//             * @param view
-//             */
-//            @Override
-//            public void onClick(View view) {
-//                //@todo it will be deleted
-//                startMapActivity("ironman");
-//            }
-//
-//        });
-
         // Teamlist
         mTeamlistButton = (Button) findViewById(R.id.btn_teamlist);
         mTeamlistButton.setOnClickListener(new View.OnClickListener() {
@@ -635,6 +547,7 @@ public class MainActivity extends AppCompatActivity  {
 
                 Intent intent = new Intent(MainActivity.this, ReportingService.class);
                 startService(intent);
+                checkServiceStatus();
             }
         });
 
@@ -653,15 +566,15 @@ public class MainActivity extends AppCompatActivity  {
 
                 Intent intent = new Intent(MainActivity.this, ReportingService.class);
                 stopService(intent);
+                checkServiceStatus();
             }
         });
 
+        mStatusText = (TextView) findViewById(R.id.tv_status);
+        checkServiceStatus();
+
         // TeamListView
 
-//        // 쿠키정보 저장(앱을 종료시켰다가 재실행해도 로긴유지
-//        AsyncHttpClient client = GCMHttpClient.getInstance();
-//        PersistentCookieStore myCookieStore = new PersistentCookieStore(this);
-//        client.setCookieStore(myCookieStore);
 
                 // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -677,10 +590,12 @@ public class MainActivity extends AppCompatActivity  {
 
         super.onResume();
 
-        Log.d(TAG, "★★★★★ onResume ★★★★★");
+        //Log.d(TAG, "★★★★★ onResume ★★★★★");
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
                 new IntentFilter(QuickstartPreferences.REGISTRATION_COMPLETE));
+
+        checkServiceStatus();
 
     }
 
@@ -690,7 +605,7 @@ public class MainActivity extends AppCompatActivity  {
     @Override
     protected void onPause() {
 
-        Log.d(TAG, "★★★★★ onPause ★★★★★");
+        //Log.d(TAG, "★★★★★ onPause ★★★★★");
 
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
 
@@ -724,7 +639,7 @@ public class MainActivity extends AppCompatActivity  {
 
         super.onStart();
 
-        Log.d(TAG, "★★★★★ onStart ★★★★★");
+        //Log.d(TAG, "★★★★★ onStart ★★★★★");
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -747,7 +662,7 @@ public class MainActivity extends AppCompatActivity  {
 
         super.onStop();
 
-        Log.d(TAG, "★★★★★ onStop ★★★★★");
+        //Log.d(TAG, "★★★★★ onStop ★★★★★");
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -864,12 +779,12 @@ public class MainActivity extends AppCompatActivity  {
                         inputValue = etEdit.getText().toString();
                         if (inputValue != null && inputValue.length() > 0) {
 
-                            MemberInfo memberInfo = (MemberInfo) getApplicationContext();
+                            final SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
 
                             // request parameter 설정
                             RequestParams params = new RequestParams();
 
-                            params.add("uuid",     memberInfo.getUuid());
+                            params.add("uuid",     gMemberInfo.getString("uuid", null));
                             params.add("teamid",   inputValue);
                             params.add("flag",     "N");
 
@@ -900,12 +815,13 @@ public class MainActivity extends AppCompatActivity  {
                                         Toast.makeText(getApplicationContext(), "team registration success", Toast.LENGTH_SHORT).show();
 
                                         // team 등록
-                                        MemberInfo memberInfo = (MemberInfo) getApplicationContext();
-                                        memberInfo.setTeamid(inputValue);
+                                        SharedPreferences.Editor editor = gMemberInfo.edit();
+                                        editor.putString("teamid", inputValue);
+                                        editor.commit();
 
                                         ReportingDTO reportingDTO = new ReportingDTO();
-                                        reportingDTO.setUuid(memberInfo.getUuid());
-                                        reportingDTO.setTeamid(memberInfo.getTeamid());
+                                        reportingDTO.setUuid(gMemberInfo.getString("uuid", null));
+                                        reportingDTO.setTeamid(gMemberInfo.getString("teamid", null));
                                         sqlHelper.insTeam(reportingDTO);
                                     }
 
@@ -979,7 +895,7 @@ public class MainActivity extends AppCompatActivity  {
 
             // Close this Menu
             case R.id.mn_close:
-                Log.d(TAG, "onOptionsItemSelected");
+                //Log.d(TAG, "onOptionsItemSelected");
                 return true;
         }
         return true;
@@ -988,8 +904,8 @@ public class MainActivity extends AppCompatActivity  {
     // TeamList 조회
     protected void setTeamListView() {
 
-        MemberInfo memberInfo = (MemberInfo) getApplicationContext();
-        String sUuid = memberInfo.getUuid();
+        SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
+        final String sUuid = gMemberInfo.getString("uuid", null);
 
         if (sUuid != null && !sUuid.equals("") && sUuid.length() > 0) {
 
@@ -1001,7 +917,7 @@ public class MainActivity extends AppCompatActivity  {
 
                 items = new ArrayList<String>() ;
 
-                Log.d(TAG, "myTeamList size is : " + retDto.size());
+                //Log.d(TAG, "myTeamList size is : " + retDto.size());
 
                 for (int i = 0; i < retDto.size(); i++) {
 
@@ -1034,13 +950,10 @@ public class MainActivity extends AppCompatActivity  {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
 
-                                        //todo MongoDB 동기화처리 필요!!!
-                                        MemberInfo memberInfo = (MemberInfo) getApplicationContext();
-
                                         // request parameter 설정
                                         RequestParams params = new RequestParams();
 
-                                        params.add("uuid",   memberInfo.getUuid());
+                                        params.add("uuid",   sUuid);
                                         params.add("teamid", listItemValue);
                                         params.add("flag",   "D");
 
@@ -1065,16 +978,14 @@ public class MainActivity extends AppCompatActivity  {
                                                     if (count > 0) {
 
                                                         // team 삭제
-                                                        MemberInfo memberInfo = (MemberInfo) getApplicationContext();
-
                                                         sqlHelper.delTeamAll(listItemValue);
                                                         setTeamListView(); // team삭제후 ListView 재조회
 
                                                         // 아이템 삭제
-                                                        items.remove(listItemPosition) ;
+                                                        //items.remove(listItemPosition) ;
 
                                                         // listview 갱신.
-                                                        adapter.notifyDataSetChanged();
+                                                        //adapter.notifyDataSetChanged();
                                                     }
 
                                                 }
@@ -1142,9 +1053,33 @@ public class MainActivity extends AppCompatActivity  {
         androidId = "" + android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
         UUID deviceUuid = new UUID(androidId.hashCode(), ((long)tmDevice.hashCode() << 32) | tmSerial.hashCode());
         String deviceId = deviceUuid.toString();
-Log.d(TAG, "device ID is : " + deviceId);
-        MemberInfo memberInfo = (MemberInfo) getApplicationContext();
-        memberInfo.setUuid(deviceId);
+
+        SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
+        SharedPreferences.Editor editor = gMemberInfo.edit();
+        editor.putString("uuid", deviceId);
+        editor.commit();
+    }
+
+
+    private void checkServiceStatus() {
+
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+
+        boolean isInService = false;
+
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (ReportingService.class.getName().equals(service.service.getClassName())) {
+
+                isInService = true;
+                break;
+            }
+        }
+
+        if (isInService) {
+            mStatusText.setTextColor(Color.RED);
+        } else {
+            mStatusText.setTextColor(Color.WHITE);
+        }
     }
 
 
