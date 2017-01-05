@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="top|center"
         android:columnCount="4"
-        android:paddingTop="10dp"
+        android:paddingTop="20dp"
         android:paddingBottom="10dp">
 
         <TextView

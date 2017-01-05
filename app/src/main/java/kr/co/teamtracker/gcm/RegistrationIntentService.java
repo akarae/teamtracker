@@ -40,7 +40,7 @@ public class RegistrationIntentService extends IntentService {
         // SQLite test
         sqlHelper = new SQLiteHelper(RegistrationIntentService.this, null, SQLiteHelper.dbVersion);
 
-        Log.i(TAG, "ResitrationIntentService called!!!");
+        //Log.i(TAG, "ResitrationIntentService called!!!");
 
         // GCM Instance ID의 토큰을 가져오는 작업이 시작되면 LocalBoardcast로 GENERATING 액션을 알려 ProgressBar가 동작하도록 한다.
 //        LocalBroadcastManager.getInstance(this)
@@ -58,7 +58,7 @@ public class RegistrationIntentService extends IntentService {
                 // Instance ID에 해당하는 토큰을 생성하여 가져온다.
                 token = instanceID.getToken(default_senderId, scope, null);
 
-                Log.i(TAG, "GCM Registration Token: " + token);
+                //Log.i(TAG, "GCM Registration Token: " + token);
 
                 // 전역변수 선언
                 SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);

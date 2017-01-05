@@ -89,6 +89,8 @@ public class ReportingService extends Service {
 
         //Log.d(TAG, "☆☆☆☆☆ service destroyed ☆☆☆☆☆");
 
+        sqlHelper.close();
+
         thread.stopForever();
         thread = null;//쓰레기 값을 만들어서 빠르게 회수하라고 null을 넣어줌.
 
@@ -116,11 +118,11 @@ public class ReportingService extends Service {
                     // request parameter 설정
                     RequestParams params = new RequestParams();
 
-                    params.add("uuid",     gMemberInfo.getString("uuid", null));
-                    params.add("lat", reportingDTO.getLat().toString());
-                    params.add("lang", reportingDTO.getLang().toString());
-                    params.add("speed", reportingDTO.getSpeed().toString());
-                    params.add("direction", reportingDTO.getDirection());
+                    params.add("uuid",       gMemberInfo.getString("uuid", null));
+                    params.add("lat",        reportingDTO.getLat().toString());
+                    params.add("lang",       reportingDTO.getLang().toString());
+                    params.add("speed",      reportingDTO.getSpeed().toString());
+                    params.add("direction",  reportingDTO.getDirection());
                     params.add("reporttime", reportingDTO.getReporttime());
 
                     GCMHttpClient.get("/gcm", params, new AsyncHttpResponseHandler() {
@@ -131,9 +133,9 @@ public class ReportingService extends Service {
 
                             String responseMsg2 = new String(responseBody);
 
-                            Log.i(TAG, "i got a response");
-                            Log.i(TAG, "statusCode is : " + statusCode);
-                            Log.i(TAG, "responseBody is : " + responseMsg2);
+//                            Log.i(TAG, "i got a response");
+//                            Log.i(TAG, "statusCode is : " + statusCode);
+//                            Log.i(TAG, "responseBody is : " + responseMsg2);
 
                             reportResult = "success";
                         }
@@ -147,7 +149,7 @@ public class ReportingService extends Service {
                             Throwable errorCause = error.getCause();
                             StackTraceElement stackTraceElement[] = error.getStackTrace();
 
-                            Log.i(TAG, "errorMsg is : " + errorMsg);
+//                            Log.i(TAG, "errorMsg is : " + errorMsg);
 
                             reportResult = "reporing failed";
 
@@ -164,7 +166,7 @@ public class ReportingService extends Service {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.i(TAG, "nodejs connection error " + e.getMessage());
+//                Log.i(TAG, "nodejs connection error " + e.getMessage());
             }
 
         }
@@ -236,7 +238,7 @@ public class ReportingService extends Service {
                 dto.setCallsign(gMemberInfo.getString("callsign", null));
                 dto.setStatus(  gMemberInfo.getString("status", null));
                 dto.setColor(   gMemberInfo.getString("color", null));
-                dto.setMsg(     gMemberInfo.getString("msg", null));
+                dto.setMsg(     gMemberInfo.getString("msg", "..."));
 
                     dto.setLat(loc.getLatitude());
                     dto.setLang(loc.getLongitude());

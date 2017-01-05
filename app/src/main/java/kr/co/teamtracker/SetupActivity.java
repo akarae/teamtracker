@@ -268,4 +268,10 @@ public class SetupActivity extends FragmentActivity implements OnMapReadyCallbac
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 14));
 
     }
+
+    @Override
+    public void onStop() {
+        sqlHelper.close();
+        super.onStop();
+    }
 }

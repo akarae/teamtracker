@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -450,10 +451,10 @@ public class MainActivity extends AppCompatActivity  {
                                 Toast.makeText(getApplicationContext(), "team registration success", Toast.LENGTH_SHORT).show();
 
                                 // team 등록
-                                SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
-                                SharedPreferences.Editor editor = gMemberInfo.edit();
-                                editor.putString("teamid", mTeamidEditText.getText().toString());
-                                editor.commit();
+//                                SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
+//                                SharedPreferences.Editor editor = gMemberInfo.edit();
+//                                editor.putString("teamid", mTeamidEditText.getText().toString());
+//                                editor.commit();
 
 //                                ReportingDTO reportingDTO = new ReportingDTO();
 //                                reportingDTO.setUuid(memberInfo.getUuid());
@@ -482,7 +483,7 @@ public class MainActivity extends AppCompatActivity  {
                                         sqlHelper.insReporting(memberDto);
 
                                         // team 정보
-                                        memberDto.setTeamid(gMemberInfo.getString("teamid", null));
+                                        memberDto.setTeamid(mTeamidEditText.getText().toString());
                                         sqlHelper.insTeam(memberDto);
                                     }
                                 } catch (Exception e) {
@@ -660,6 +661,8 @@ public class MainActivity extends AppCompatActivity  {
     @Override
     public void onStop() {
 
+        sqlHelper.close();
+
         super.onStop();
 
         //Log.d(TAG, "★★★★★ onStop ★★★★★");
@@ -686,6 +689,9 @@ public class MainActivity extends AppCompatActivity  {
         // Tracking Service 종료
         Intent intent = new Intent(MainActivity.this, ReportingService.class);
         stopService(intent);
+
+        // GPS off
+        setGPSOff();
 
         super.finish();
     }
@@ -979,13 +985,15 @@ public class MainActivity extends AppCompatActivity  {
 
                                                         // team 삭제
                                                         sqlHelper.delTeamAll(listItemValue);
-                                                        setTeamListView(); // team삭제후 ListView 재조회
+
 
                                                         // 아이템 삭제
-                                                        //items.remove(listItemPosition) ;
+                                                        items.remove(listItemPosition) ;
 
                                                         // listview 갱신.
-                                                        //adapter.notifyDataSetChanged();
+                                                        adapter.notifyDataSetChanged();
+
+                                                        setTeamListView(); // team삭제후 ListView 재조회
                                                     }
 
                                                 }
@@ -1082,5 +1090,22 @@ public class MainActivity extends AppCompatActivity  {
         }
     }
 
+    private void setGPSOff() {
+
+//        Intent intent = new Intent("android.location.GPS_ENABLED_CHANGE");
+//        intent.putExtra("enabled", false);
+//        sendBroadcast(intent);
+
+
+//        String provider = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+//        if(provider.contains("gps"))
+//        { //if gps is enabled
+//            final Intent poke = new Intent();
+//            poke.setClassName("com.android.settings", "com.android.settings.widget.SettingsAppWidgetProvider");
+//            poke.addCategory(Intent.CATEGORY_ALTERNATIVE);
+//            poke.setData(Uri.parse("3"));
+//            sendBroadcast(poke);
+//        }
+    }
 
 }

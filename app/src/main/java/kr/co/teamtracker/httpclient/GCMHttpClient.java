@@ -26,7 +26,7 @@ public class GCMHttpClient {
     }
 
     public static void get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
-        Log.i("HttpClient", "HttpClient URL is : " + getAbsoluteUrl(url));
+        //Log.i("HttpClient", "HttpClient URL is : " + getAbsoluteUrl(url));
         client.get(getAbsoluteUrl(url), params, responseHandler);
     }
     public static void post(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {

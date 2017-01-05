@@ -95,4 +95,9 @@ public class QuickstartPreferences {
     public static final String TEAMS_GOAL_UPDATE_SUCCESS = "TEAMS_GOAL_UPDATE_SUCCESS";
 
     public static final String TEAMS_GOAL_UPDATE_ERROR = "TEAMS_GOAL_UPDATE_ERROR";
+
+    /**
+     * GOAL 근접 시 종료되는 거리
+     */
+    public static final double GOAL_END_DISTANCE = 0.15;
 }

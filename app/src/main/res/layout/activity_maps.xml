@@ -29,9 +29,9 @@
         />
 
     <TextView
-        android:layout_width="120dp"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:text="[MEMBER LIST]"
+        android:text="[MEMBER]"
         android:id="@+id/tv_map_title"
         android:background="@drawable/textview_rounded"
         android:textSize="12dp"
@@ -41,23 +41,23 @@
         android:layout_below="@+id/btn_map_toggle"
         android:layout_alignParentLeft="true"
         android:gravity="center_horizontal"
-        android:layout_marginTop="3dp"/>
+        android:layout_marginTop="2dp"/>
 
     <LinearLayout
         android:orientation="vertical"
-        android:layout_width="120dp"
+        android:layout_width="100dp"
         android:layout_height="200dp"
         android:id="@+id/ll_status"
         android:background="@drawable/layout_rounded"
         android:clickable="true"
         android:layout_below="@+id/tv_map_title"
         android:layout_alignParentLeft="true"
-        android:layout_marginTop="1dp" >
+        android:layout_marginTop="1dp">
     </LinearLayout>
 
     <Button
         style="?android:attr/buttonStyleSmall"
-        android:layout_width="120dp"
+        android:layout_width="100dp"
         android:layout_height="20dp"
         android:text="GOAL"
         android:id="@+id/btn_map_goal"
@@ -68,7 +68,7 @@
 
     <Button
         style="?android:attr/buttonStyleSmall"
-        android:layout_width="120dp"
+        android:layout_width="100dp"
         android:layout_height="20dp"
         android:text="SetUp GOAL"
         android:id="@+id/btn_map_setup"
@@ -93,7 +93,11 @@
             android:layout_gravity="bottom|center"
             android:background="@drawable/layout_rounded_100"
             android:textSize="14dp"
-            android:paddingLeft="5dp"/>
+            android:singleLine="true"
+            android:maxLength="20"
+            android:paddingLeft="5dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"/>
 
         <Button
             android:layout_width="50dp"

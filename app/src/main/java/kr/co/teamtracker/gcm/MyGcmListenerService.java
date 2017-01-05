@@ -149,6 +149,8 @@ public class MyGcmListenerService extends GcmListenerService {
             sqlHelper.setTeamGoal(dto);
         }
 
+        sqlHelper.close();
+
         // Maps Update 처리
         Intent intent = new Intent();
         intent.setAction(QuickstartPreferences.REPORT_NOTIFICATION);

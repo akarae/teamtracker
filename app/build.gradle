@@ -16,8 +16,8 @@ android {
         applicationId "kr.co.teamtracker"
         minSdkVersion 15
         targetSdkVersion 15
-        versionCode 9
-        versionName "1.8"
+        versionCode 11
+        versionName "1.9"
         signingConfig signingConfigs.config
     }
     buildTypes {

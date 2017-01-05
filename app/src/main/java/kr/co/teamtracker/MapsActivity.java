@@ -42,11 +42,16 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
@@ -71,6 +76,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     TextView mtvTitle;
 
     List<Marker> markerList = new ArrayList<Marker>();
+    List<Polyline> polylineList = new ArrayList<Polyline>();
 
     private boolean isInitialPostion = true;
 
@@ -97,6 +103,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Circle mCircleSmall;
 
     private boolean mIsGoalIn;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,51 +168,67 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if (msg != null && msg.length() > 0) {
 
                     SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
-                    // request parameter 설정
-                    RequestParams params = new RequestParams();
 
-                    params.add("uuid", gMemberInfo.getString("uuid", null));
-                    params.add("tokenid", gMemberInfo.getString("tokenid", null));
-                    params.add("callsign", gMemberInfo.getString("callsign", null));
-                    params.add("status", gMemberInfo.getString("status", null));
-                    params.add("color", gMemberInfo.getString("color", null));
-                    params.add("msg", msg);
+                    ReportingDTO reportingDTO = sqlHelper.getReporting(gMemberInfo.getString("uuid", null));
 
-                    SharedPreferences.Editor editor = gMemberInfo.edit();
-                    editor.putString("msg", msg);
-                    editor.commit();
+                    if (reportingDTO != null && reportingDTO.getLat() != null && reportingDTO.getLang() != null) {
 
-                    GCMHttpClient.get("/gcm/regist", params, new AsyncHttpResponseHandler() {
-                        @Override
-                        public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                        // request parameter 설정
+                        RequestParams params = new RequestParams();
 
-                            mEtMsg.setText("");
-                            InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                            inputManager.hideSoftInputFromWindow(mEtMsg.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+//                    params.add("uuid",     gMemberInfo.getString("uuid", null));
+//                    params.add("tokenid",  gMemberInfo.getString("tokenid", null));
+//                    params.add("callsign", gMemberInfo.getString("callsign", null));
+//                    params.add("status",   gMemberInfo.getString("status", null));
+//                    params.add("color",    gMemberInfo.getString("color", null));
+//                    params.add("msg",      msg);
 
-                            String responseMsg = new String(responseBody);
+                        SharedPreferences.Editor editor = gMemberInfo.edit();
+                        editor.putString("msg", msg);
+                        editor.commit();
 
-                            Log.i(TAG, "statusCode is : " + statusCode);
-                            Log.i(TAG, "responseBody is : " + responseMsg);
+                        params.add("uuid", gMemberInfo.getString("uuid", null));
+//                        params.add("lat", reportingDTO.getLat().toString());
+//                        params.add("lang", reportingDTO.getLang().toString());
+//                        params.add("speed", reportingDTO.getSpeed().toString());
+//                        params.add("direction", reportingDTO.getDirection());
+//                        params.add("reporttime", reportingDTO.getReporttime());
+                        params.add("msg", msg);
 
-                            if (responseMsg.equals(QuickstartPreferences.MEMBERS_SAVE_INSERT_SUCCESS)
-                                    || responseMsg.equals(QuickstartPreferences.MEMBERS_SAVE_UPDATE_SUCCESS)) {
+                        GCMHttpClient.get("/gcm", params, new AsyncHttpResponseHandler() {
+                            @Override
+                            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
 
-                            } else {
+                                mEtMsg.setText("");
+                                InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                inputManager.hideSoftInputFromWindow(mEtMsg.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
+                                String responseMsg = new String(responseBody);
+
+                                Log.i(TAG, "statusCode is : " + statusCode);
+                                Log.i(TAG, "responseBody is : " + responseMsg);
+
+                                if (responseMsg.equals(QuickstartPreferences.MEMBERS_SAVE_INSERT_SUCCESS)
+                                        || responseMsg.equals(QuickstartPreferences.MEMBERS_SAVE_UPDATE_SUCCESS)) {
+
+                                } else {
+
+                                }
                             }
-                        }
 
-                        @Override
-                        public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                            @Override
+                            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
 
-                            String errorMsg = error.getMessage();
-                            Throwable errorCause = error.getCause();
-                            StackTraceElement stackTraceElement[] = error.getStackTrace();
+                                String errorMsg = error.getMessage();
+                                Throwable errorCause = error.getCause();
+                                StackTraceElement stackTraceElement[] = error.getStackTrace();
 
-                            Log.i(TAG, "errorMsg is : " + errorMsg);
-                        }
-                    });
+                                Log.i(TAG, "errorMsg is : " + errorMsg);
+                            }
+                        });
+                    } else {
+                        Toast.makeText(getApplicationContext(), "There is no GPS reporting!!", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
@@ -217,61 +240,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
 
-                if (mIsShow) {
-                    mtvTitle.setVisibility(View.GONE);
-                    TranslateAnimation animate = new TranslateAnimation(0,-mtvTitle.getWidth(),0,0);
-                    animate.setDuration(500);
-                    mtvTitle.startAnimation(animate);
-                    mtvTitle.invalidate();
-
-                    llStatus.setVisibility(View.GONE);
-                    TranslateAnimation animate2 = new TranslateAnimation(0,-llStatus.getWidth(),0,0);
-                    animate2.setDuration(500);
-                    llStatus.startAnimation(animate2);
-                    llStatus.invalidate();
-
-                    mBtnGoal.setVisibility(View.GONE);
-                    TranslateAnimation animate3 = new TranslateAnimation(0,-mBtnGoal.getWidth(),0,0);
-                    animate3.setDuration(500);
-                    mBtnGoal.startAnimation(animate3);
-                    mBtnGoal.invalidate();
-
-                    mBtnSetupGoal.setVisibility(View.GONE);
-                    TranslateAnimation animate4 = new TranslateAnimation(0,-mBtnSetupGoal.getWidth(),0,0);
-                    animate4.setDuration(500);
-                    mBtnSetupGoal.startAnimation(animate4);
-                    mBtnSetupGoal.invalidate();
-
-                    mBtnToggleShow.setText(">>");
-                    mIsShow = false;
-                } else {
-                    mtvTitle.setVisibility(View.VISIBLE);
-                    TranslateAnimation animate = new TranslateAnimation(-mtvTitle.getWidth(),0,0,0);
-                    animate.setDuration(500);
-                    mtvTitle.startAnimation(animate);
-                    mtvTitle.invalidate();
-
-                    llStatus.setVisibility(View.VISIBLE);
-                    TranslateAnimation animate2 = new TranslateAnimation(-llStatus.getWidth(),0,0,0);
-                    animate2.setDuration(500);
-                    llStatus.startAnimation(animate2);
-                    llStatus.invalidate();
-
-                    mBtnGoal.setVisibility(View.VISIBLE);
-                    TranslateAnimation animate3 = new TranslateAnimation(-mBtnGoal.getWidth(),0,0,0);
-                    animate3.setDuration(500);
-                    mBtnGoal.startAnimation(animate3);
-                    mBtnGoal.invalidate();
-
-                    mBtnSetupGoal.setVisibility(View.VISIBLE);
-                    TranslateAnimation animate4 = new TranslateAnimation(-mBtnSetupGoal.getWidth(),0,0,0);
-                    animate4.setDuration(500);
-                    mBtnSetupGoal.startAnimation(animate4);
-                    mBtnSetupGoal.invalidate();
-
-                    mBtnToggleShow.setText("<<");
-                    mIsShow = true;
-                }
+                setToggleShow();
             }
         });
 
@@ -282,8 +251,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
-
-
 
 
     /**
@@ -377,6 +344,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onStop() {
         // TODO Auto-generated method stub
         unregisterReceiver(myReceiver);
+
+        sqlHelper.close();
+
         super.onStop();
     }
 
@@ -408,6 +378,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             markerList.clear();
         }
 
+        if (polylineList != null && polylineList.size() >0) {
+            // 삭제 후 재설정
+            for (int i = 0; i < polylineList.size(); i++) {
+                polylineList.get(i).remove();
+            }
+
+            polylineList.clear();
+        }
+
         // this is my sweet hometown!!
         Double dLat = 35.8041311;
         Double dLang = 128.6239454;
@@ -419,13 +398,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String sTeamStatusView = new String();
 
         llStatus.removeAllViews();
-
-        TextView tvStatusTitle = new TextView(MapsActivity.this);
-        tvStatusTitle.setPadding(10, 2, 2, 10);
-        tvStatusTitle.setTextSize(12);
-        tvStatusTitle.setTextColor(Color.BLACK);
-        tvStatusTitle.setText("[" + mTeamId + "] Unit List");
-        //llStatus.addView(tvStatusTitle);
 
         int imgId       = R.drawable.c_169fed;
         int textColorId = R.color.m_169fed;
@@ -482,16 +454,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             View marker_root_view = LayoutInflater.from(this).inflate(R.layout.marker_layout, null);
 
+
+
             TextView tv_marker = (TextView) marker_root_view.findViewById(R.id.tv_marker);
             tv_marker.setText(retDTO.getCallsign());
+            tv_marker.setShadowLayer(3, 1, 1, Color.argb(255, 255, 255, 255));
 
             TextView tv_marker_info = (TextView) marker_root_view.findViewById(R.id.tv_marker_info);
-            //tv_marker_info.setText(retDTO.getDirection() + "/" + retDTO.getSpeed());
+            tv_marker_info.setText(retDTO.getDirection() + "/" + retDTO.getSpeed());
+            tv_marker_info.setShadowLayer(3, 1, 1, Color.argb(255, 255, 255, 255));
+
+            TextView tv_marker_msg = (TextView) marker_root_view.findViewById(R.id.tv_marker_msg);
             String sMsg = retDTO.getMsg();
-            if (sMsg == null || sMsg.length() < 1) {
-                sMsg = "-";
+            if (sMsg == null || sMsg.isEmpty() || sMsg.length() < 1 || sMsg.equals("null")) {
+                sMsg = "...";
             }
-            tv_marker_info.setText(sMsg);
+            tv_marker_msg.setText(sMsg);
 
             TextView tv_marker_img = (TextView) marker_root_view.findViewById(R.id.tv_marker_img);
             tv_marker_img.setBackgroundResource(imgId);
@@ -508,27 +486,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // 목표지점으로부터 특정거리 이내로 접근 시 서비스 종료처리
                 SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
                 String callsign = gMemberInfo.getString("callsign", null);
-                if (retDTO.getCallsign().equals(callsign) && distance <= 0.05) { //50m
+                if (retDTO.getCallsign().equals(callsign) && distance <= QuickstartPreferences.GOAL_END_DISTANCE) {
                     mIsGoalIn = true;
                 } else {
                     mIsGoalIn = false;
                 }
+
+                // guideline 제공
+                PolylineOptions polylineOptions = new PolylineOptions();
+                polylineOptions.color(Color.LTGRAY);
+                polylineOptions.width(2);
+                polylineOptions.add(new LatLng(mGoallat, mGoallang));
+                polylineOptions.add(position);
+
+                Polyline polyline = mMap.addPolyline(polylineOptions);
+                polylineList.add(polyline);
+
             }
 
             Marker marker = mMap.addMarker(new MarkerOptions()
                     .position(position)
                     .icon(BitmapDescriptorFactory.fromBitmap(newBitmap))
-                    .title(retDTO.getCallsign() + "'s Information")
+                    .title(retDTO.getCallsign() + "'s reporting")
                     .snippet("report time : " + retDTO.getReporttime() + "\n"
-                            + "direction : " + retDTO.getDirection() + "\n"
-                            + "speed : " + retDTO.getSpeed() + "\n"
+                            + "direction : " + retDTO.getDirection() + "deg" + "\n"
+                            + "speed : " + retDTO.getSpeed() + "km/h" + "\n"
                             + "status : " + retDTO.getStatus() + "\n"
                             + "distance : " + distance + "km" + "\n"
                             + "msg : " + retDTO.getMsg())
-                    .anchor(0.18f, 0.55f));
+                    .anchor(0.155f, 0.25f));
 
             // 위치검증용
-//            Marker marker2 = mMap.addMarker(new MarkerOptions().position(position));
+            //Marker marker2 = mMap.addMarker(new MarkerOptions().position(position));
 
             markerList.add(marker);
 
@@ -537,15 +526,39 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 positionTop = position;
             }
 
-            if (retDTO.getReporttime() != null && !retDTO.getReporttime().equals("")
+            if (retDTO.getReporttime() != null && !retDTO.getReporttime().isEmpty()
                     && !retDTO.getReporttime().equals("null") && retDTO.getReporttime().length() > 0) {
 
-                sTeamStatusView = "□ " + retDTO.getCallsign() + " : " + retDTO.getReporttime().substring(11, retDTO.getReporttime().length());
+                String sReportTime = "?Min";
+
+                Calendar c = Calendar.getInstance();
+                SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                String formattedDate = df.format(c.getTime());
+
+                try {
+                    Date dReportTime = df.parse(retDTO.getReporttime());
+                    Date dCurretTime = df.parse(formattedDate);
+
+                    long diff = dCurretTime.getTime() - dReportTime.getTime();
+                    long seconds = diff / 1000;
+                    long minutes = seconds / 60;
+
+                    if (minutes > 60) {
+                        sReportTime = "60M+";
+                    } else {
+                        sReportTime = minutes + "M";
+                    }
+
+                } catch (Exception e) {
+                    sReportTime = "?M";
+                }
+
+                sTeamStatusView = "□" + retDTO.getCallsign() + " : " + sReportTime;
 
                 final TextView tvStatus = new TextView(MapsActivity.this);
                 tvStatus.setPadding(20, 2, 2, 5);
                 tvStatus.setTextColor(ContextCompat.getColor(getApplicationContext(), textColorId));
-                tvStatus.setShadowLayer(1, 1, 1, Color.BLACK);
+                tvStatus.setShadowLayer(1, 1, 1, Color.DKGRAY);
                 tvStatus.setTextSize(12);
                 tvStatus.setText(sTeamStatusView);
                 llStatus.addView(tvStatus); // add TextView to LinearLayout
@@ -680,5 +693,63 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //        Log.i("Radius Value", "" + valueResult + "   KM  " + kmInDec + " Meter   " + meterInDec + " MeterRounded   " + rounded);
 
         return rounded;
+    }
+
+    protected void setToggleShow() {
+        if (mIsShow) {
+            mtvTitle.setVisibility(View.GONE);
+            TranslateAnimation animate = new TranslateAnimation(0,-mtvTitle.getWidth(),0,0);
+            animate.setDuration(500);
+            mtvTitle.startAnimation(animate);
+            mtvTitle.invalidate();
+
+            llStatus.setVisibility(View.GONE);
+            TranslateAnimation animate2 = new TranslateAnimation(0,-llStatus.getWidth(),0,0);
+            animate2.setDuration(500);
+            llStatus.startAnimation(animate2);
+            llStatus.invalidate();
+
+            mBtnGoal.setVisibility(View.GONE);
+            TranslateAnimation animate3 = new TranslateAnimation(0,-mBtnGoal.getWidth(),0,0);
+            animate3.setDuration(500);
+            mBtnGoal.startAnimation(animate3);
+            mBtnGoal.invalidate();
+
+            mBtnSetupGoal.setVisibility(View.GONE);
+            TranslateAnimation animate4 = new TranslateAnimation(0,-mBtnSetupGoal.getWidth(),0,0);
+            animate4.setDuration(500);
+            mBtnSetupGoal.startAnimation(animate4);
+            mBtnSetupGoal.invalidate();
+
+            mBtnToggleShow.setText(">>");
+            mIsShow = false;
+        } else {
+            mtvTitle.setVisibility(View.VISIBLE);
+            TranslateAnimation animate = new TranslateAnimation(-mtvTitle.getWidth(),0,0,0);
+            animate.setDuration(500);
+            mtvTitle.startAnimation(animate);
+            mtvTitle.invalidate();
+
+            llStatus.setVisibility(View.VISIBLE);
+            TranslateAnimation animate2 = new TranslateAnimation(-llStatus.getWidth(),0,0,0);
+            animate2.setDuration(500);
+            llStatus.startAnimation(animate2);
+            llStatus.invalidate();
+
+            mBtnGoal.setVisibility(View.VISIBLE);
+            TranslateAnimation animate3 = new TranslateAnimation(-mBtnGoal.getWidth(),0,0,0);
+            animate3.setDuration(500);
+            mBtnGoal.startAnimation(animate3);
+            mBtnGoal.invalidate();
+
+            mBtnSetupGoal.setVisibility(View.VISIBLE);
+            TranslateAnimation animate4 = new TranslateAnimation(-mBtnSetupGoal.getWidth(),0,0,0);
+            animate4.setDuration(500);
+            mBtnSetupGoal.startAnimation(animate4);
+            mBtnSetupGoal.invalidate();
+
+            mBtnToggleShow.setText("<<");
+            mIsShow = true;
+        }
     }
 }
