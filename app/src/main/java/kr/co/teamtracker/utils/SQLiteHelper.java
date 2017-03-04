@@ -262,7 +262,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 
         List<ReportingDTO> dtoList = new ArrayList<ReportingDTO>();
 
-        String query = "SELECT uuid, teamid FROM table_team WHERE uuid = \"" + uuid + "\" ORDER BY teamid ASC";
+        String query = "SELECT a.uuid, a.teamid, (SELECT COUNT(z.uuid) FROM table_team z WHERE z.teamid = a.teamid) AS teamcnt FROM table_team a WHERE a.uuid = \"" + uuid + "\" ORDER BY a.teamid ASC";
 
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -272,6 +272,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
             ReportingDTO retDTO = new ReportingDTO();
             retDTO.setUuid(cursor.getString(0));
             retDTO.setTeamid(cursor.getString(1));
+            retDTO.setTeamcnt(cursor.getInt(2));
             dtoList.add(retDTO);
         }
         cursor.close();

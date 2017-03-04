@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="kr.co.teamtracker"
-    android:versionCode="11"
-    android:versionName="1.91">
+    android:versionCode="13"
+    android:versionName="1.0">
+
     <!-- versionCode 기준으로 처리됨 -->
     <!-- [START gcm_permission] -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -30,6 +31,7 @@
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -99,8 +101,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCvr_LNXaI5U-nZw8-X_Md9P2wtUkXtG5k" />
 
-        <activity
-            android:name=".MapsActivity">
+        <activity android:name=".MapsActivity">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -111,7 +112,16 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".SetupActivity">
+        <activity android:name=".MapsSetupActivity">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".SetupActivity"
+            android:label="@string/setup_name"
+            android:supportsRtl="true"
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>

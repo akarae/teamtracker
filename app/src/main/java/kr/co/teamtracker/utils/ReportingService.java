@@ -261,12 +261,12 @@ public class ReportingService extends Service {
         }
 
         public void onProviderDisabled(String provider) {
-            Toast.makeText(getApplicationContext(), "Gps Disabled", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "GPS를 켜주세요.", Toast.LENGTH_SHORT).show();
         }
 
 
         public void onProviderEnabled(String provider) {
-            Toast.makeText(getApplicationContext(), "Gps Enabled", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "GPS 활성화", Toast.LENGTH_SHORT).show();
         }
 
 

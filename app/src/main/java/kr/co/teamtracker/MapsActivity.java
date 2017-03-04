@@ -3,7 +3,6 @@ package kr.co.teamtracker;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -17,7 +16,6 @@ import android.location.LocationManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -60,6 +58,7 @@ import kr.co.teamtracker.httpclient.GCMHttpClient;
 import kr.co.teamtracker.utils.ReportingDTO;
 import kr.co.teamtracker.utils.ReportingService;
 import kr.co.teamtracker.utils.SQLiteHelper;
+import kr.co.teamtracker.utils.TeamTrackerUtils;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -146,7 +145,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 if (mIsShow) {
                     try {
-                        Intent intent = new Intent(MapsActivity.this, SetupActivity.class);
+                        Intent intent = new Intent(MapsActivity.this, MapsSetupActivity.class);
                         intent.putExtra("teamid", mTeamId);
                         startActivity(intent);
                     } catch (Exception e) {
@@ -227,7 +226,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             }
                         });
                     } else {
-                        Toast.makeText(getApplicationContext(), "There is no GPS reporting!!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "GPS 위치정보가 없습니다!", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -409,44 +408,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mGoallat  = retDTO.getGoallat();
             mGoallang = retDTO.getGoallang();
 
-            // icon / text color setting start
-            if (retDTO.getColor().equals("06ff00") ) {
-                imgId       = R.drawable.c_06ff00;
-                textColorId = R.color.m_06ff00;
-            }
-            if (retDTO.getColor().equals("43bd00") ) {
-                imgId       = R.drawable.c_43bd00;
-                textColorId = R.color.m_43bd00;
-            }
-            if (retDTO.getColor().equals("169fed") ) {
-                imgId       = R.drawable.c_169fed;
-                textColorId = R.color.m_169fed;
-            }
-            if (retDTO.getColor().equals("1919ab") ) {
-                imgId       = R.drawable.c_1919ab;
-                textColorId = R.color.m_1919ab;
-            }
-            if (retDTO.getColor().equals("c720c9") ) {
-                imgId       = R.drawable.c_c720c9;
-                textColorId = R.color.m_c720c9;
-            }
-            if (retDTO.getColor().equals("ecd900") ) {
-                imgId       = R.drawable.c_ecd900;
-                textColorId = R.color.m_ecd900;
-            }
-            if (retDTO.getColor().equals("fc00ff") ) {
-                imgId       = R.drawable.c_fc00ff;
-                textColorId = R.color.m_fc00ff;
-            }
-            if (retDTO.getColor().equals("ff0000") ) {
-                imgId       = R.drawable.c_ff0000;
-                textColorId = R.color.m_ff0000;
-            }
-            if (retDTO.getColor().equals("ff9c00") ) {
-                imgId       = R.drawable.c_ff9c00;
-                textColorId = R.color.m_ff9c00;
-            }
-            // icon / text color setting end
+            imgId       = TeamTrackerUtils.getImgResourceID("img", retDTO.getColor());
+            textColorId = TeamTrackerUtils.getImgResourceID("text", retDTO.getColor());
 
 
             // location setting
@@ -478,15 +441,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             // 거리 계산
             double distance = 0;
+
+            // 거리에 따른 순위계산
+            int iRank = 0;
+
+            boolean isUnitGoalIn = false;
+
             if (mGoallang != 0.0) {
 
                 LatLng goalPosition = new LatLng(mGoallat, mGoallang);
-                distance = CalculationByDistance(position, goalPosition);
+                distance = TeamTrackerUtils.calculationByDistance(position, goalPosition);
 
-                // 목표지점으로부터 특정거리 이내로 접근 시 서비스 종료처리
+
                 SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
                 String callsign = gMemberInfo.getString("callsign", null);
-                if (retDTO.getCallsign().equals(callsign) && distance <= QuickstartPreferences.GOAL_END_DISTANCE) {
+
+                if (distance <= QuickstartPreferences.GOAL_END_DISTANCE) {
+                    isUnitGoalIn = true;
+                } else {
+                    isUnitGoalIn = false;
+                }
+
+                // 목표지점으로부터 특정거리 이내로 접근 시 서비스 종료처리
+                if (retDTO.getCallsign().equals(callsign) && isUnitGoalIn) {
                     mIsGoalIn = true;
                 } else {
                     mIsGoalIn = false;
@@ -502,18 +479,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Polyline polyline = mMap.addPolyline(polylineOptions);
                 polylineList.add(polyline);
 
+                // 내위치 기반으로 전체순위 조회
+                iRank = TeamTrackerUtils.getDistanceRank(listDto, i, goalPosition);
+
             }
 
             Marker marker = mMap.addMarker(new MarkerOptions()
                     .position(position)
                     .icon(BitmapDescriptorFactory.fromBitmap(newBitmap))
-                    .title(retDTO.getCallsign() + "'s reporting")
-                    .snippet("report time : " + retDTO.getReporttime() + "\n"
-                            + "direction : " + retDTO.getDirection() + "deg" + "\n"
-                            + "speed : " + retDTO.getSpeed() + "km/h" + "\n"
-                            + "status : " + retDTO.getStatus() + "\n"
-                            + "distance : " + distance + "km" + "\n"
-                            + "msg : " + retDTO.getMsg())
+                    .title(retDTO.getCallsign() + "의 정보")
+                    .snippet("보고시간 : " + retDTO.getReporttime() + "\n"
+                            + "방위 : " + retDTO.getDirection() + "deg" + "\n"
+                            + "속도 : " + retDTO.getSpeed() + "km/h" + "\n"
+                            + "상태 : " + retDTO.getStatus() + "\n"
+                            + "거리 : " + distance + "km" + "\n"
+                            + "상태 : " + retDTO.getMsg() + "\n"
+                            + "rank : " + iRank)
                     .anchor(0.155f, 0.25f));
 
             // 위치검증용
@@ -553,11 +534,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     sReportTime = "?M";
                 }
 
-                sTeamStatusView = "□" + retDTO.getCallsign() + " : " + sReportTime;
+                sTeamStatusView = "" + retDTO.getCallsign() + " : " + sReportTime + " " + iRank;
 
                 final TextView tvStatus = new TextView(MapsActivity.this);
                 tvStatus.setPadding(20, 2, 2, 5);
-                tvStatus.setTextColor(ContextCompat.getColor(getApplicationContext(), textColorId));
+                if (isUnitGoalIn) {
+                    tvStatus.setTextColor(Color.BLACK);
+                } else {
+                    tvStatus.setTextColor(ContextCompat.getColor(getApplicationContext(), textColorId));
+                }
                 tvStatus.setShadowLayer(1, 1, 1, Color.DKGRAY);
                 tvStatus.setTextSize(12);
                 tvStatus.setText(sTeamStatusView);
@@ -578,15 +563,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     if (markerPosition == 0) {
                         TextView tv = (TextView) ll.getChildAt(markerList.size() - 1);
-                        tv.setText(tv.getText().toString().replace("■", "□"));
+                        tv.setText(tv.getText().toString().replace(">", ""));
 
                     } else {
                         TextView tv = (TextView) ll.getChildAt(markerPosition - 1);
-                        tv.setText(tv.getText().toString().replace("■", "□"));
+                        tv.setText(tv.getText().toString().replace(">", ""));
                     }
 
                     TextView tv = (TextView) ll.getChildAt(markerPosition);
-                    tv.setText(tv.getText().toString().replace("□", "■"));
+                    tv.setText(">" + tv.getText().toString());
 
 
                     Marker marker = markerList.get(markerPosition);
@@ -635,23 +620,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    protected int getImgResourceID(String color) {
-
-        int imgResourceID = R.drawable.m_169fed;
-
-        if (color.equals("m_06ff00")) imgResourceID = R.drawable.m_06ff00;
-        if (color.equals("m_43bd00")) imgResourceID = R.drawable.m_43bd00;
-        if (color.equals("m_169fed")) imgResourceID = R.drawable.m_169fed;
-        if (color.equals("m_1919ab")) imgResourceID = R.drawable.m_1919ab;
-        if (color.equals("m_c720c9")) imgResourceID = R.drawable.m_c720c9;
-        if (color.equals("m_ecd900")) imgResourceID = R.drawable.m_ecd900;
-        if (color.equals("m_fc00ff")) imgResourceID = R.drawable.m_fc00ff;
-        if (color.equals("m_ff0000")) imgResourceID = R.drawable.m_ff0000;
-        if (color.equals("m_ff9c00")) imgResourceID = R.drawable.m_ff9c00;
-
-        return imgResourceID;
-    }
-
     private Bitmap createDrawableFromView(Context context, View view) {
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -668,32 +636,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return bitmap;
     }
 
-    public double CalculationByDistance(LatLng StartP, LatLng EndP) {
-        int Radius = 6371;// radius of earth in Km
-        double lat1 = StartP.latitude;
-        double lat2 = EndP.latitude;
-        double lon1 = StartP.longitude;
-        double lon2 = EndP.longitude;
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLon = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
-                + Math.cos(Math.toRadians(lat1))
-                * Math.cos(Math.toRadians(lat2)) * Math.sin(dLon / 2)
-                * Math.sin(dLon / 2);
-        double c = 2 * Math.asin(Math.sqrt(a));
-        double valueResult = Radius * c;
-        double km = valueResult / 1;
-        DecimalFormat newFormat = new DecimalFormat("####");
-        int kmInDec = Integer.valueOf(newFormat.format(km));
-        double meter = valueResult % 1000;
-        int meterInDec = Integer.valueOf(newFormat.format(meter));
 
-        double rounded = (double) Math.round(meter * 100) / 100;
-
-//        Log.i("Radius Value", "" + valueResult + "   KM  " + kmInDec + " Meter   " + meterInDec + " MeterRounded   " + rounded);
-
-        return rounded;
-    }
 
     protected void setToggleShow() {
         if (mIsShow) {

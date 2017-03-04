@@ -31,6 +31,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -62,6 +63,7 @@ import kr.co.teamtracker.utils.ReportingDTO;
 import kr.co.teamtracker.utils.ReportingService;
 import kr.co.teamtracker.utils.SQLiteHelper;
 import kr.co.teamtracker.utils.SpinnerAdapter;
+import kr.co.teamtracker.utils.TeamTrackerUtils;
 
 public class MainActivity extends AppCompatActivity  {
 
@@ -69,16 +71,18 @@ public class MainActivity extends AppCompatActivity  {
     private static final String TAG = "MainActivity";
 
     private Button mRegistrationButton;
-    private Button mTeamRegistrationButton;
-    private Button mTeamJoin;
-    private BroadcastReceiver mRegistrationBroadcastReceiver;
-    private Spinner mSpinner;
-    private Spinner mSpinnerStatus;
-    private Spinner mSpinnerInterval;
-    ArrayList<ItemData> listSpinnerItem = new ArrayList<>();
+    //private Button mTeamRegistrationButton;
+//    private Button mTeamJoin;
+//    private BroadcastReceiver mRegistrationBroadcastReceiver;
+//    private Spinner mSpinner;
+    //private Spinner mSpinnerStatus;
+    //private Spinner mSpinnerInterval;
+//    ArrayList<ItemData> listSpinnerItem = new ArrayList<>();
 
-    private EditText mCallsignEditText;
-    private EditText mTeamidEditText;
+    private TextView mCallsignTextView;
+    private ImageView mIconImageView;
+//    private EditText mCallsignEditText;
+//    private EditText mTeamidEditText;
     private TextView mStatusText;
 
     private Button mTeamlistButton;
@@ -104,141 +108,141 @@ public class MainActivity extends AppCompatActivity  {
      */
     private GoogleApiClient client2;
 
-    /**
-     * Instance ID를 이용하여 디바이스 토큰을 가져오는 RegistrationIntentService를 실행한다.
-     */
-    public void getInstanceIdToken() {
+//    /**
+//     * Instance ID를 이용하여 디바이스 토큰을 가져오는 RegistrationIntentService를 실행한다.
+//     */
+//    public void getInstanceIdToken() {
+//
+//        Log.i(TAG, "getInstanceIdToken");
+//
+//        // GooglePlayService를 사용 가능한 환경인지 검증
+//        if (checkPlayServices()) {
+//
+//            // Start IntentService to register this application with GCM.
+//            Intent intent = new Intent(this, RegistrationIntentService.class);
+//
+//            Log.i(TAG, "intent is : " + intent.toString());
+//
+//            ComponentName startServiceResult = startService(intent);
+//
+//            Log.i(TAG, "startServiceResult is : " + startServiceResult.toString());
+//        }
+//    }
 
-        Log.i(TAG, "getInstanceIdToken");
-
-        // GooglePlayService를 사용 가능한 환경인지 검증
-        if (checkPlayServices()) {
-
-            // Start IntentService to register this application with GCM.
-            Intent intent = new Intent(this, RegistrationIntentService.class);
-
-            Log.i(TAG, "intent is : " + intent.toString());
-
-            ComponentName startServiceResult = startService(intent);
-
-            Log.i(TAG, "startServiceResult is : " + startServiceResult.toString());
-        }
-    }
-
-    /**
-     * LocalBroadcast 리시버를 정의한다. 토큰을 획득하기 위한 READY, GENERATING, COMPLETE 액션에 따라 UI에 변화를 준다.
-     */
-    public void registBroadcastReceiver() {
-
-        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
-
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-
-                if (action.equals(QuickstartPreferences.REGISTRATION_COMPLETE)) {
-
-                    SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
-                    // request parameter 설정
-                    RequestParams params = new RequestParams();
-
-                    params.add("uuid",     gMemberInfo.getString("uuid", null));
-                    params.add("tokenid",  gMemberInfo.getString("tokenid", null));
-                    params.add("callsign", gMemberInfo.getString("callsign", null));
-                    params.add("status",   gMemberInfo.getString("status", null));
-                    params.add("color",    gMemberInfo.getString("color", null));
-                    params.add("msg",      gMemberInfo.getString("msg", null));
-
-                    GCMHttpClient.get("/gcm/regist", params, new AsyncHttpResponseHandler() {
-                        @Override
-                        public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-
-                            String responseMsg = new String(responseBody);
-
-                            Log.i(TAG, "statusCode is : " + statusCode);
-                            Log.i(TAG, "responseBody is : " + responseMsg);
-
-                            if (responseMsg.equals(QuickstartPreferences.MEMBERS_SAVE_INSERT_SUCCESS)
-                                    || responseMsg.equals(QuickstartPreferences.MEMBERS_SAVE_UPDATE_SUCCESS)) {
-                                Toast.makeText(getApplicationContext(), "registration success", Toast.LENGTH_SHORT).show();
-                            } else {
-                                AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
-                                alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();     //닫기
-                                    }
-                                });
-                                alert.setMessage("please try again later!!\n(or check your Network)");
-                                alert.show();
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                            // nullable
-//                        String responseMsg = responseBody.toString();
-
-                            String errorMsg = error.getMessage();
-                            Throwable errorCause = error.getCause();
-                            StackTraceElement stackTraceElement[] = error.getStackTrace();
-
-                            Log.i(TAG, "errorMsg is : " + errorMsg);
-
-                            Toast.makeText(getApplicationContext(), "registration failed", Toast.LENGTH_SHORT).show();
-
-                        }
-                    });
-                }
-
-            }
-        };
-    }
+//    /**
+//     * LocalBroadcast 리시버를 정의한다. 토큰을 획득하기 위한 READY, GENERATING, COMPLETE 액션에 따라 UI에 변화를 준다.
+//     */
+//    public void registBroadcastReceiver() {
+//
+//        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+//
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//                String action = intent.getAction();
+//
+//                if (action.equals(QuickstartPreferences.REGISTRATION_COMPLETE)) {
+//
+//                    SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
+//                    // request parameter 설정
+//                    RequestParams params = new RequestParams();
+//
+//                    params.add("uuid",     gMemberInfo.getString("uuid", null));
+//                    params.add("tokenid",  gMemberInfo.getString("tokenid", null));
+//                    params.add("callsign", gMemberInfo.getString("callsign", null));
+//                    params.add("status",   gMemberInfo.getString("status", null));
+//                    params.add("color",    gMemberInfo.getString("color", null));
+//                    params.add("msg",      gMemberInfo.getString("msg", null));
+//
+//                    GCMHttpClient.get("/gcm/regist", params, new AsyncHttpResponseHandler() {
+//                        @Override
+//                        public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+//
+//                            String responseMsg = new String(responseBody);
+//
+//                            Log.i(TAG, "statusCode is : " + statusCode);
+//                            Log.i(TAG, "responseBody is : " + responseMsg);
+//
+//                            if (responseMsg.equals(QuickstartPreferences.MEMBERS_SAVE_INSERT_SUCCESS)
+//                                    || responseMsg.equals(QuickstartPreferences.MEMBERS_SAVE_UPDATE_SUCCESS)) {
+//                                Toast.makeText(getApplicationContext(), "registration success", Toast.LENGTH_SHORT).show();
+//                            } else {
+//                                AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+//                                alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(DialogInterface dialog, int which) {
+//                                        dialog.dismiss();     //닫기
+//                                    }
+//                                });
+//                                alert.setMessage("please try again later!!\n(or check your Network)");
+//                                alert.show();
+//                            }
+//                        }
+//
+//                        @Override
+//                        public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+//                            // nullable
+////                        String responseMsg = responseBody.toString();
+//
+//                            String errorMsg = error.getMessage();
+//                            Throwable errorCause = error.getCause();
+//                            StackTraceElement stackTraceElement[] = error.getStackTrace();
+//
+//                            Log.i(TAG, "errorMsg is : " + errorMsg);
+//
+//                            Toast.makeText(getApplicationContext(), "registration failed", Toast.LENGTH_SHORT).show();
+//
+//                        }
+//                    });
+//                }
+//
+//            }
+//        };
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        registBroadcastReceiver();
+        //registBroadcastReceiver();
 
         GetDevicesUUID(getApplicationContext());
 
         setContentView(R.layout.activity_main);
 
         sqlHelper = new SQLiteHelper(MainActivity.this, null, SQLiteHelper.dbVersion);
-
-        // spinner start
-        listSpinnerItem.add(new ItemData("06ff00", R.drawable.c_06ff00));
-        listSpinnerItem.add(new ItemData("43bd00", R.drawable.c_43bd00));
-        listSpinnerItem.add(new ItemData("169fed", R.drawable.c_169fed));
-        listSpinnerItem.add(new ItemData("1919ab", R.drawable.c_1919ab));
-        listSpinnerItem.add(new ItemData("c720c9", R.drawable.c_c720c9));
-        listSpinnerItem.add(new ItemData("ecd900", R.drawable.c_ecd900));
-        listSpinnerItem.add(new ItemData("fc00ff", R.drawable.c_fc00ff));
-        listSpinnerItem.add(new ItemData("ff0000", R.drawable.c_ff0000));
-        listSpinnerItem.add(new ItemData("ff9c00", R.drawable.c_ff9c00));
-
-        mSpinner = (Spinner)findViewById(R.id.sp_color);
-        SpinnerAdapter adapter=new SpinnerAdapter(this, R.layout.spinner_layout,R.id.tv_sp_txt,listSpinnerItem);
-        mSpinner.setAdapter(adapter);
-        mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
-            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                // An item was selected. You can retrieve the selected item using
-                // parent.getItemAtPosition(pos)
-
-                //Log.d(TAG, "onItemSelected - pos : " + pos + " id : " + id);
-                SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
-                SharedPreferences.Editor editor = gMemberInfo.edit();
-                editor.putString("color", listSpinnerItem.get(pos).getText());
-                editor.commit();
-            }
-
-            public void onNothingSelected(AdapterView<?> parent) {
-                // Another interface callback
-            }
-
-        });
+//
+//        // spinner start
+//        listSpinnerItem.add(new ItemData("06ff00", R.drawable.c_06ff00));
+//        listSpinnerItem.add(new ItemData("43bd00", R.drawable.c_43bd00));
+//        listSpinnerItem.add(new ItemData("169fed", R.drawable.c_169fed));
+//        listSpinnerItem.add(new ItemData("1919ab", R.drawable.c_1919ab));
+//        listSpinnerItem.add(new ItemData("c720c9", R.drawable.c_c720c9));
+//        listSpinnerItem.add(new ItemData("ecd900", R.drawable.c_ecd900));
+//        listSpinnerItem.add(new ItemData("fc00ff", R.drawable.c_fc00ff));
+//        listSpinnerItem.add(new ItemData("ff0000", R.drawable.c_ff0000));
+//        listSpinnerItem.add(new ItemData("ff9c00", R.drawable.c_ff9c00));
+//
+//        mSpinner = (Spinner)findViewById(R.id.sp_color);
+//        SpinnerAdapter adapter=new SpinnerAdapter(this, R.layout.spinner_layout,R.id.tv_sp_txt,listSpinnerItem);
+//        mSpinner.setAdapter(adapter);
+//        mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//
+//            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+//                // An item was selected. You can retrieve the selected item using
+//                // parent.getItemAtPosition(pos)
+//
+//                //Log.d(TAG, "onItemSelected - pos : " + pos + " id : " + id);
+//                SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
+//                SharedPreferences.Editor editor = gMemberInfo.edit();
+//                editor.putString("color", listSpinnerItem.get(pos).getText());
+//                editor.commit();
+//            }
+//
+//            public void onNothingSelected(AdapterView<?> parent) {
+//                // Another interface callback
+//            }
+//
+//        });
 
 //        mSpinnerStatus = (Spinner) findViewById(R.id.sp_status);
 //        ArrayAdapter<CharSequence> statusAdapter = ArrayAdapter.createFromResource(this, R.array.status_array, R.layout.spinner_item);
@@ -291,237 +295,239 @@ public class MainActivity extends AppCompatActivity  {
 
         // spinner end
 
-        mCallsignEditText = (EditText) findViewById(R.id.et_callsign);
-        mCallsignEditText.setPrivateImeOptions("defaultInputmode=english;");
-        mTeamidEditText   = (EditText) findViewById(R.id.et_teamid);
-        mTeamidEditText.setPrivateImeOptions("defaultInputmode=english;");
+//        mCallsignEditText = (EditText) findViewById(R.id.et_callsign);
+//        mCallsignEditText.setPrivateImeOptions("defaultInputmode=english;");
+//        mTeamidEditText   = (EditText) findViewById(R.id.et_teamid);
+//        mTeamidEditText.setPrivateImeOptions("defaultInputmode=english;");
         mTeamListView     = (ListView) findViewById(R.id.lv_teamlist);
 
-        // 전역변수 선언
-        SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
-        String sCallsign = gMemberInfo.getString("callsign", null);
+        setUserInfo();
 
-        if (sCallsign != null && sCallsign.length() > 0) {
-            mCallsignEditText.setText(sCallsign);
-            //mTeamidEditText.setText(gMemberInfo.getString("teamid", null));
-
-            int idx = 0;
-
-            for (int i = 0; i < listSpinnerItem.size(); i++) {
-                if (listSpinnerItem.get(i).getText().equals(gMemberInfo.getString("color", null))) {
-                    idx = i;
-                    break;
-                }
-            }
-
-            //Log.d(TAG, "index is ::::::::: " + idx);
-
-            mSpinner.setSelection(idx);
-
-            InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputManager.hideSoftInputFromWindow(mCallsignEditText.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-
-            setTeamListView();
-        }
+//        // 전역변수 선언
+//        SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
+//        String sCallsign = gMemberInfo.getString("callsign", null);
+//
+//        if (sCallsign != null && sCallsign.length() > 0) {
+//            mCallsignEditText.setText(sCallsign);
+//            //mTeamidEditText.setText(gMemberInfo.getString("teamid", null));
+//
+//            int idx = 0;
+//
+//            for (int i = 0; i < listSpinnerItem.size(); i++) {
+//                if (listSpinnerItem.get(i).getText().equals(gMemberInfo.getString("color", null))) {
+//                    idx = i;
+//                    break;
+//                }
+//            }
+//
+//            //Log.d(TAG, "index is ::::::::: " + idx);
+//
+//            mSpinner.setSelection(idx);
+//
+//            InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+//            inputManager.hideSoftInputFromWindow(mCallsignEditText.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+//
+//            setTeamListView();
+//        }
 
 //        // 토큰을 가져오는 동안 인디케이터를 보여줄 ProgressBar를 정의
 //        mRegistrationProgressBar = (ProgressBar) findViewById(R.id.registrationProgressBar);
 //        mRegistrationProgressBar.setVisibility(ProgressBar.GONE);
 
-        // 토큰을 가져오는 Button을 정의
-        mRegistrationButton = (Button) findViewById(R.id.btn_registration);
-        mRegistrationButton.setOnClickListener(new View.OnClickListener() {
-            /**
-             * 버튼을 클릭하면 토큰을 가져오는 getInstanceIdToken() 메소드를 실행한다.
-             *
-             * @param view
-             */
-            @Override
-            public void onClick(View view) {
-
-                InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                inputManager.hideSoftInputFromWindow(mCallsignEditText.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-
-                Editable etCallsign = mCallsignEditText.getText();
-                Editable etTeamid   = mTeamidEditText.getText();
-
-                if (etCallsign == null || etCallsign.toString().equals("") || etCallsign.toString().length() == 0) {
-
-                    AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
-                    alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();     //닫기
-                        }
-                    });
-                    alert.setMessage("input your CallSign");
-                    alert.show();
-
-                } else {
-
-                    // 전역변수 선언
-                    SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
-                    SharedPreferences.Editor editor = gMemberInfo.edit();
-                    editor.putString("callsign", etCallsign.toString());
-                    editor.commit();
-
-                    if (gMemberInfo.getString("status", null) == null || gMemberInfo.getString("status", null).length() == 0) {
-                        editor.putString("status", "NORMAL");
-                        editor.commit();
-                    }
-
-                    // 토큰 획득
-                    getInstanceIdToken();
-                }
-            }
-        });
-
-        // TEAM JOIN
-        mTeamJoin = (Button) findViewById(R.id.btn_teamjoin);
-        mTeamJoin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                inputManager.hideSoftInputFromWindow(mTeamidEditText.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-
-
-                Editable etCallsign = mCallsignEditText.getText();
-
-                if (etCallsign == null || etCallsign.toString().equals("") || etCallsign.toString().length() == 0) {
-
-                    AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
-                    alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();     //닫기
-                        }
-                    });
-                    alert.setMessage("regist your CallSign first");
-                    alert.show();
-
-                }
-
-
-                if (mTeamidEditText.getText() != null && mTeamidEditText.getText().toString().length() > 0) {
-
-                    // request parameter 설정
-                    RequestParams params = new RequestParams();
-                    SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
-                    params.add("uuid",   gMemberInfo.getString("uuid", null));
-                    params.add("teamid", mTeamidEditText.getText().toString());
-                    params.add("flag", "J");
-
-                    GCMHttpClient.get("/gcm/registteam", params, new AsyncHttpResponseHandler() {
-                        @Override
-                        public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-
-                            String responseMsg = new String(responseBody);
-                            JSONObject jsonObj = new JSONObject();
-                            JSONArray membersObjArr = new JSONArray();
-
-                            // json parsing
-                            try {
-                                jsonObj = new JSONObject(responseMsg);
-                                responseMsg = jsonObj.getString("resultMsg");
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-
-                            Log.i(TAG, "statusCode is : " + statusCode);
-                            Log.i(TAG, "responseBody is : " + responseMsg);
-
-                            if (responseMsg.equals(QuickstartPreferences.TEAMS_TEAMID_NOT_EXISTS)) {
-
-                                AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
-                                alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();     //닫기
-                                    }
-                                });
-                                alert.setMessage("TeamID not exists!!");
-                                alert.show();
-                            }
-
-                            if (responseMsg.equals(QuickstartPreferences.TEAMS_MEMBERS_UPDATE_SUCCESS)
-                                    || responseMsg.equals(QuickstartPreferences.TEAMS_GCM_SEND_SUCCESS)
-                                    || responseMsg.equals(QuickstartPreferences.TEAMS_GCM_SEND_ERROR)) {
-
-                                Toast.makeText(getApplicationContext(), "team registration success", Toast.LENGTH_SHORT).show();
-
-                                // team 등록
-//                                SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
-//                                SharedPreferences.Editor editor = gMemberInfo.edit();
-//                                editor.putString("teamid", mTeamidEditText.getText().toString());
-//                                editor.commit();
-
-//                                ReportingDTO reportingDTO = new ReportingDTO();
-//                                reportingDTO.setUuid(memberInfo.getUuid());
-//                                reportingDTO.setTeamid(memberInfo.getTeamid());
-//                                sqlHelper.insTeam(reportingDTO);
-
-                                try {
-                                    membersObjArr = jsonObj.getJSONArray("membersObjArr");
-
-                                    // 데이터 insert
-                                    for (int i = 0; i < membersObjArr.length(); i++) {
-
-                                        // reporting 정보
-                                        JSONObject memberJSON = (JSONObject) membersObjArr.get(i);
-                                        ReportingDTO memberDto = new ReportingDTO();
-                                        memberDto.setUuid(memberJSON.getString("uuid"));
-                                        memberDto.setCallsign(memberJSON.getString("callsign"));
-                                        memberDto.setStatus(memberJSON.getString("status"));
-                                        memberDto.setLat(memberJSON.getDouble("lat"));
-                                        memberDto.setLang(memberJSON.getDouble("lang"));
-                                        memberDto.setReporttime(memberJSON.getString("reporttime"));
-                                        memberDto.setDirection(memberJSON.getString("direction"));
-                                        memberDto.setSpeed(memberJSON.getString("speed"));
-                                        memberDto.setColor(memberJSON.getString("color"));
-                                        memberDto.setMsg(memberJSON.getString("msg"));
-                                        sqlHelper.insReporting(memberDto);
-
-                                        // team 정보
-                                        memberDto.setTeamid(mTeamidEditText.getText().toString());
-                                        sqlHelper.insTeam(memberDto);
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-
-                                // teamid 삭제 후 리스트 재조회
-                                mTeamidEditText.setText("");
-                                setTeamListView();
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
-                            String errorMsg = error.getMessage();
-                            Throwable errorCause = error.getCause();
-                            StackTraceElement stackTraceElement[] = error.getStackTrace();
-
-                            Log.i(TAG, "errorMsg is : " + errorMsg);
-
-                            Toast.makeText(getApplicationContext(), "team registration failed", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-
-                } else {
-                    AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
-                    alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();     //닫기
-                        }
-                    });
-                    alert.setMessage("input your TeamId");
-                    alert.show();
-                }
-            }
-        });
+//        // 토큰을 가져오는 Button을 정의
+//        mRegistrationButton = (Button) findViewById(R.id.btn_registration);
+//        mRegistrationButton.setOnClickListener(new View.OnClickListener() {
+//            /**
+//             * 버튼을 클릭하면 토큰을 가져오는 getInstanceIdToken() 메소드를 실행한다.
+//             *
+//             * @param view
+//             */
+//            @Override
+//            public void onClick(View view) {
+//
+//                InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+//                inputManager.hideSoftInputFromWindow(mCallsignEditText.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+//
+//                Editable etCallsign = mCallsignEditText.getText();
+//                Editable etTeamid   = mTeamidEditText.getText();
+//
+//                if (etCallsign == null || etCallsign.toString().equals("") || etCallsign.toString().length() == 0) {
+//
+//                    AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+//                    alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            dialog.dismiss();     //닫기
+//                        }
+//                    });
+//                    alert.setMessage("input your CallSign");
+//                    alert.show();
+//
+//                } else {
+//
+//                    // 전역변수 선언
+//                    SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
+//                    SharedPreferences.Editor editor = gMemberInfo.edit();
+//                    editor.putString("callsign", etCallsign.toString());
+//                    editor.commit();
+//
+//                    if (gMemberInfo.getString("status", null) == null || gMemberInfo.getString("status", null).length() == 0) {
+//                        editor.putString("status", "NORMAL");
+//                        editor.commit();
+//                    }
+//
+//                    // 토큰 획득
+//                    getInstanceIdToken();
+//                }
+//            }
+//        });
+//
+//        // TEAM JOIN
+//        mTeamJoin = (Button) findViewById(R.id.btn_teamjoin);
+//        mTeamJoin.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//
+//                InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+//                inputManager.hideSoftInputFromWindow(mTeamidEditText.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+//
+//
+//                Editable etCallsign = mCallsignEditText.getText();
+//
+//                if (etCallsign == null || etCallsign.toString().equals("") || etCallsign.toString().length() == 0) {
+//
+//                    AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+//                    alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            dialog.dismiss();     //닫기
+//                        }
+//                    });
+//                    alert.setMessage("regist your CallSign first");
+//                    alert.show();
+//
+//                }
+//
+//
+//                if (mTeamidEditText.getText() != null && mTeamidEditText.getText().toString().length() > 0) {
+//
+//                    // request parameter 설정
+//                    RequestParams params = new RequestParams();
+//                    SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
+//                    params.add("uuid",   gMemberInfo.getString("uuid", null));
+//                    params.add("teamid", mTeamidEditText.getText().toString());
+//                    params.add("flag", "J");
+//
+//                    GCMHttpClient.get("/gcm/registteam", params, new AsyncHttpResponseHandler() {
+//                        @Override
+//                        public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+//
+//                            String responseMsg = new String(responseBody);
+//                            JSONObject jsonObj = new JSONObject();
+//                            JSONArray membersObjArr = new JSONArray();
+//
+//                            // json parsing
+//                            try {
+//                                jsonObj = new JSONObject(responseMsg);
+//                                responseMsg = jsonObj.getString("resultMsg");
+//                            } catch (Exception e) {
+//                                e.printStackTrace();
+//                            }
+//
+//                            Log.i(TAG, "statusCode is : " + statusCode);
+//                            Log.i(TAG, "responseBody is : " + responseMsg);
+//
+//                            if (responseMsg.equals(QuickstartPreferences.TEAMS_TEAMID_NOT_EXISTS)) {
+//
+//                                AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+//                                alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(DialogInterface dialog, int which) {
+//                                        dialog.dismiss();     //닫기
+//                                    }
+//                                });
+//                                alert.setMessage("TeamID not exists!!");
+//                                alert.show();
+//                            }
+//
+//                            if (responseMsg.equals(QuickstartPreferences.TEAMS_MEMBERS_UPDATE_SUCCESS)
+//                                    || responseMsg.equals(QuickstartPreferences.TEAMS_GCM_SEND_SUCCESS)
+//                                    || responseMsg.equals(QuickstartPreferences.TEAMS_GCM_SEND_ERROR)) {
+//
+//                                Toast.makeText(getApplicationContext(), "team registration success", Toast.LENGTH_SHORT).show();
+//
+//                                // team 등록
+////                                SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
+////                                SharedPreferences.Editor editor = gMemberInfo.edit();
+////                                editor.putString("teamid", mTeamidEditText.getText().toString());
+////                                editor.commit();
+//
+////                                ReportingDTO reportingDTO = new ReportingDTO();
+////                                reportingDTO.setUuid(memberInfo.getUuid());
+////                                reportingDTO.setTeamid(memberInfo.getTeamid());
+////                                sqlHelper.insTeam(reportingDTO);
+//
+//                                try {
+//                                    membersObjArr = jsonObj.getJSONArray("membersObjArr");
+//
+//                                    // 데이터 insert
+//                                    for (int i = 0; i < membersObjArr.length(); i++) {
+//
+//                                        // reporting 정보
+//                                        JSONObject memberJSON = (JSONObject) membersObjArr.get(i);
+//                                        ReportingDTO memberDto = new ReportingDTO();
+//                                        memberDto.setUuid(memberJSON.getString("uuid"));
+//                                        memberDto.setCallsign(memberJSON.getString("callsign"));
+//                                        memberDto.setStatus(memberJSON.getString("status"));
+//                                        memberDto.setLat(memberJSON.getDouble("lat"));
+//                                        memberDto.setLang(memberJSON.getDouble("lang"));
+//                                        memberDto.setReporttime(memberJSON.getString("reporttime"));
+//                                        memberDto.setDirection(memberJSON.getString("direction"));
+//                                        memberDto.setSpeed(memberJSON.getString("speed"));
+//                                        memberDto.setColor(memberJSON.getString("color"));
+//                                        memberDto.setMsg(memberJSON.getString("msg"));
+//                                        sqlHelper.insReporting(memberDto);
+//
+//                                        // team 정보
+//                                        memberDto.setTeamid(mTeamidEditText.getText().toString());
+//                                        sqlHelper.insTeam(memberDto);
+//                                    }
+//                                } catch (Exception e) {
+//                                    e.printStackTrace();
+//                                }
+//
+//                                // teamid 삭제 후 리스트 재조회
+//                                mTeamidEditText.setText("");
+//                                setTeamListView();
+//                            }
+//                        }
+//
+//                        @Override
+//                        public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+//
+//                            String errorMsg = error.getMessage();
+//                            Throwable errorCause = error.getCause();
+//                            StackTraceElement stackTraceElement[] = error.getStackTrace();
+//
+//                            Log.i(TAG, "errorMsg is : " + errorMsg);
+//
+//                            Toast.makeText(getApplicationContext(), "team registration failed", Toast.LENGTH_SHORT).show();
+//                        }
+//                    });
+//
+//                } else {
+//                    AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+//                    alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            dialog.dismiss();     //닫기
+//                        }
+//                    });
+//                    alert.setMessage("input your TeamId");
+//                    alert.show();
+//                }
+//            }
+//        });
 
         // Teamlist
         mTeamlistButton = (Button) findViewById(R.id.btn_teamlist);
@@ -532,6 +538,8 @@ public class MainActivity extends AppCompatActivity  {
                 setTeamListView();
             }
         });
+
+
 
         // START SERVICE
         Button btnStartService = (Button) findViewById(R.id.btn_startservice);
@@ -544,11 +552,28 @@ public class MainActivity extends AppCompatActivity  {
             @Override
             public void onClick(View view) {
 
-                Toast.makeText(getApplicationContext(), "Reporting Start!!!", Toast.LENGTH_SHORT).show();
+                SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
+                String sCallsign = gMemberInfo.getString("callsign", null);
 
-                Intent intent = new Intent(MainActivity.this, ReportingService.class);
-                startService(intent);
-                checkServiceStatus();
+                if (sCallsign != null && sCallsign.length() > 0) {
+                    Toast.makeText(getApplicationContext(), "Tracking 시작!!!", Toast.LENGTH_SHORT).show();
+
+                    Intent intent = new Intent(MainActivity.this, ReportingService.class);
+                    startService(intent);
+                    checkServiceStatus();
+                } else {
+                    AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+                    alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();     //닫기
+                        }
+                    });
+                    alert.setMessage("설정에서 CallSign을 등록하세요.");
+                    alert.show();
+                }
+
+
             }
         });
 
@@ -563,11 +588,28 @@ public class MainActivity extends AppCompatActivity  {
             @Override
             public void onClick(View view) {
 
-                Toast.makeText(getApplicationContext(), "Reporting Stop!!!", Toast.LENGTH_SHORT).show();
+                SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
+                String sCallsign = gMemberInfo.getString("callsign", null);
 
-                Intent intent = new Intent(MainActivity.this, ReportingService.class);
-                stopService(intent);
-                checkServiceStatus();
+                if (sCallsign != null && sCallsign.length() > 0) {
+
+                    Toast.makeText(getApplicationContext(), "Tracking 종료!!!", Toast.LENGTH_SHORT).show();
+
+                    Intent intent = new Intent(MainActivity.this, ReportingService.class);
+                    stopService(intent);
+                    checkServiceStatus();
+                } else {
+
+                    AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+                    alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();     //닫기
+                        }
+                    });
+                    alert.setMessage("설정에서 CallSign을 등록하세요.");
+                    alert.show();
+                }
             }
         });
 
@@ -593,8 +635,11 @@ public class MainActivity extends AppCompatActivity  {
 
         //Log.d(TAG, "★★★★★ onResume ★★★★★");
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
-                new IntentFilter(QuickstartPreferences.REGISTRATION_COMPLETE));
+        //LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver, new IntentFilter(QuickstartPreferences.REGISTRATION_COMPLETE));
+
+        setUserInfo();
+
+        setTeamListView();
 
         checkServiceStatus();
 
@@ -608,7 +653,7 @@ public class MainActivity extends AppCompatActivity  {
 
         //Log.d(TAG, "★★★★★ onPause ★★★★★");
 
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
+        //LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
 
         super.onPause();
     }
@@ -715,7 +760,7 @@ public class MainActivity extends AppCompatActivity  {
 //        alert.setMessage("please try again later!!\n(or check your Network)");
 //        alert.show();
 
-        Toast.makeText(getApplicationContext(), "Press 'Back' again to Quit!!\r\n(Tracking Service will be stopped)", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "한번 더 누르면 종료됩니다.\n(트래킹 중단)", Toast.LENGTH_SHORT).show();
 
         mLastTimeBackPressed = System.currentTimeMillis();
     }
@@ -733,155 +778,168 @@ public class MainActivity extends AppCompatActivity  {
 
         switch(item.getItemId())
         {
-            // 신규Team을 생성
-            case R.id.mn_maketeam:
+            // 설정화면 이동
+            case R.id.mn_setup:
 
-                final EditText etEdit = new EditText(this);
-                etEdit.setTextColor(Color.WHITE);
-                etEdit.setHintTextColor(Color.GRAY);
-                etEdit.setTextSize(16);
-                etEdit.setPrivateImeOptions("defaultInputmode=english;");
-                etEdit.setHint("input your TeadID");
-
-                etEdit.setImeOptions(EditorInfo.IME_ACTION_DONE);
-                InputFilter maxLengthFilter = new InputFilter.LengthFilter(10);
-                InputFilter alphanumFilter = new InputFilter() {
-                    public CharSequence filter(CharSequence source, int start, int end,
-                                               Spanned dest, int dstart, int dend) {
-
-                        Pattern ps = Pattern.compile("^[a-zA-Z0-9]+$");
-                        if (!ps.matcher(source).matches()) {
-                            return "";
-                        }
-                        return null;
-                    }
-                };
-                etEdit.setFilters(new InputFilter[] {alphanumFilter, maxLengthFilter});
-
-                AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this, R.style.custom_alert);
-                dialog.setTitle("Create a new Team");
-                dialog.setView(etEdit);
-
-                // OK 버튼 이벤트
-                dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        Editable etCallsign = mCallsignEditText.getText();
-
-                        if (etCallsign == null || etCallsign.toString().equals("") || etCallsign.toString().length() == 0) {
-
-                            AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
-                            alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();     //닫기
-                                }
-                            });
-                            alert.setMessage("regist your CallSign first");
-                            alert.show();
-                            return;
-                        }
-
-                        inputValue = etEdit.getText().toString();
-                        if (inputValue != null && inputValue.length() > 0) {
-
-                            final SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
-
-                            // request parameter 설정
-                            RequestParams params = new RequestParams();
-
-                            params.add("uuid",     gMemberInfo.getString("uuid", null));
-                            params.add("teamid",   inputValue);
-                            params.add("flag",     "N");
-
-                            GCMHttpClient.get("/gcm/registteam", params, new AsyncHttpResponseHandler() {
-                                @Override
-                                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-
-                                    String responseMsg = new String(responseBody);
-
-                                    Log.i(TAG, "statusCode is : " + statusCode);
-                                    Log.i(TAG, "responseBody is : " + responseMsg);
-
-                                    if (responseMsg.equals(QuickstartPreferences.TEAMS_TEAMID_ALEADY_EXISTS)) {
-
-                                        AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
-                                        alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                dialog.dismiss();     //닫기
-                                            }
-                                        });
-                                        alert.setMessage("TeamID aleady exists!!");
-                                        alert.show();
-
-                                    }
-                                    if (responseMsg.equals(QuickstartPreferences.TEAMS_GCM_SEND_SUCCESS)
-                                            || responseMsg.equals(QuickstartPreferences.TEAMS_MEMBERS_UPDATE_SUCCESS)) {
-                                        Toast.makeText(getApplicationContext(), "team registration success", Toast.LENGTH_SHORT).show();
-
-                                        // team 등록
-                                        SharedPreferences.Editor editor = gMemberInfo.edit();
-                                        editor.putString("teamid", inputValue);
-                                        editor.commit();
-
-                                        ReportingDTO reportingDTO = new ReportingDTO();
-                                        reportingDTO.setUuid(gMemberInfo.getString("uuid", null));
-                                        reportingDTO.setTeamid(gMemberInfo.getString("teamid", null));
-                                        sqlHelper.insTeam(reportingDTO);
-                                    }
-
-                                }
-
-                                @Override
-                                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                                    // nullable
-//                        String responseMsg = responseBody.toString();
-
-                                    String errorMsg = error.getMessage();
-                                    Throwable errorCause = error.getCause();
-                                    StackTraceElement stackTraceElement[] = error.getStackTrace();
-
-                                    Log.i(TAG, "errorMsg is : " + errorMsg);
-
-                                    Toast.makeText(getApplicationContext(), "team registration failed", Toast.LENGTH_SHORT).show();
-
-                                }
-                            });
-
-                        } else {
-                            AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
-                            alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();     //닫기
-                                }
-                            });
-                            alert.setMessage("input your TeamId");
-                            alert.show();
-                        }
-
-
-                    }
-                });
-                // Cancel 버튼 이벤트
-                dialog.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-
-
-
-                        dialog.show();
+                try {
+                    Intent intent = new Intent(MainActivity.this, SetupActivity.class);
+                    startActivity(intent);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.i(TAG, "sepup activity start failed " + e.getMessage());
+                }
 
                 return true;
+
+//            // 신규Team을 생성
+//            case R.id.mn_maketeam:
+//
+//                final EditText etEdit = new EditText(this);
+//                etEdit.setTextColor(Color.WHITE);
+//                etEdit.setHintTextColor(Color.GRAY);
+//                etEdit.setTextSize(16);
+//                etEdit.setPrivateImeOptions("defaultInputmode=english;");
+//                etEdit.setHint("팀ID를 입력하세요.");
+//
+//                etEdit.setImeOptions(EditorInfo.IME_ACTION_DONE);
+//                InputFilter maxLengthFilter = new InputFilter.LengthFilter(10);
+//                InputFilter alphanumFilter = new InputFilter() {
+//                    public CharSequence filter(CharSequence source, int start, int end,
+//                                               Spanned dest, int dstart, int dend) {
+//
+//                        Pattern ps = Pattern.compile("^[a-zA-Z0-9]+$");
+//                        if (!ps.matcher(source).matches()) {
+//                            return "";
+//                        }
+//                        return null;
+//                    }
+//                };
+//                etEdit.setFilters(new InputFilter[] {alphanumFilter, maxLengthFilter});
+//
+//                AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this, R.style.custom_alert);
+//                dialog.setTitle("새로운 Team을 생성");
+//                dialog.setView(etEdit);
+//
+//                // OK 버튼 이벤트
+//                dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//                    public void onClick(DialogInterface dialog, int which) {
+//
+//                        Editable etCallsign = mCallsignEditText.getText();
+//
+//                        if (etCallsign == null || etCallsign.toString().equals("") || etCallsign.toString().length() == 0) {
+//
+//                            AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+//                            alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//                                @Override
+//                                public void onClick(DialogInterface dialog, int which) {
+//                                    dialog.dismiss();     //닫기
+//                                }
+//                            });
+//                            alert.setMessage("CallSign을 먼저 입력하세요.");
+//                            alert.show();
+//                            return;
+//                        }
+//
+//                        inputValue = etEdit.getText().toString();
+//                        if (inputValue != null && inputValue.length() > 0) {
+//
+//                            final SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
+//
+//                            // request parameter 설정
+//                            RequestParams params = new RequestParams();
+//
+//                            params.add("uuid",     gMemberInfo.getString("uuid", null));
+//                            params.add("teamid",   inputValue);
+//                            params.add("flag",     "N");
+//
+//                            GCMHttpClient.get("/gcm/registteam", params, new AsyncHttpResponseHandler() {
+//                                @Override
+//                                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+//
+//                                    String responseMsg = new String(responseBody);
+//
+//                                    Log.i(TAG, "statusCode is : " + statusCode);
+//                                    Log.i(TAG, "responseBody is : " + responseMsg);
+//
+//                                    if (responseMsg.equals(QuickstartPreferences.TEAMS_TEAMID_ALEADY_EXISTS)) {
+//
+//                                        AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+//                                        alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//                                            @Override
+//                                            public void onClick(DialogInterface dialog, int which) {
+//                                                dialog.dismiss();     //닫기
+//                                            }
+//                                        });
+//                                        alert.setMessage("동일한 팀ID가 존재합니다!");
+//                                        alert.show();
+//
+//                                    }
+//                                    if (responseMsg.equals(QuickstartPreferences.TEAMS_GCM_SEND_SUCCESS)
+//                                            || responseMsg.equals(QuickstartPreferences.TEAMS_MEMBERS_UPDATE_SUCCESS)) {
+//                                        Toast.makeText(getApplicationContext(), "팀 생성 성공", Toast.LENGTH_SHORT).show();
+//
+//                                        // team 등록
+//                                        SharedPreferences.Editor editor = gMemberInfo.edit();
+//                                        editor.putString("teamid", inputValue);
+//                                        editor.commit();
+//
+//                                        ReportingDTO reportingDTO = new ReportingDTO();
+//                                        reportingDTO.setUuid(gMemberInfo.getString("uuid", null));
+//                                        reportingDTO.setTeamid(gMemberInfo.getString("teamid", null));
+//                                        sqlHelper.insTeam(reportingDTO);
+//                                    }
+//
+//                                }
+//
+//                                @Override
+//                                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+//                                    // nullable
+////                        String responseMsg = responseBody.toString();
+//
+//                                    String errorMsg = error.getMessage();
+//                                    Throwable errorCause = error.getCause();
+//                                    StackTraceElement stackTraceElement[] = error.getStackTrace();
+//
+//                                    Log.i(TAG, "errorMsg is : " + errorMsg);
+//
+//                                    Toast.makeText(getApplicationContext(), "팀 생성 실패(오류발생)", Toast.LENGTH_SHORT).show();
+//
+//                                }
+//                            });
+//
+//                        } else {
+//                            AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+//                            alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//                                @Override
+//                                public void onClick(DialogInterface dialog, int which) {
+//                                    dialog.dismiss();     //닫기
+//                                }
+//                            });
+//                            alert.setMessage("팀ID를 입력하세요.");
+//                            alert.show();
+//                        }
+//
+//
+//                    }
+//                });
+//                // Cancel 버튼 이벤트
+//                dialog.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        dialog.cancel();
+//                    }
+//                });
+//
+//
+//
+//                        dialog.show();
+//
+//                return true;
 
             // Exit from this Application
             case R.id.mn_exit:
 
                 AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
-                alert.setMessage("Press 'OK' to EXIT.\n(Tracking Service will be stopped)");
+                alert.setMessage("종료를 원하시면 'OK' 선택.\n(트래킹이 중단됩니다.)");
                 alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -897,11 +955,6 @@ public class MainActivity extends AppCompatActivity  {
                 });
                 alert.show();
 
-                return true;
-
-            // Close this Menu
-            case R.id.mn_close:
-                //Log.d(TAG, "onOptionsItemSelected");
                 return true;
         }
         return true;
@@ -928,7 +981,7 @@ public class MainActivity extends AppCompatActivity  {
                 for (int i = 0; i < retDto.size(); i++) {
 
 //                    teamList[i] = retDto.get(i).getTeamid();
-                    items.add(i, retDto.get(i).getTeamid());
+                    items.add(i, retDto.get(i).getTeamid() + " [" + retDto.get(i).getTeamcnt() + "]");
                 }
 
                 adapter = new ArrayAdapter<String>(this, R.layout.listview_layout, R.id.text1, items);
@@ -938,6 +991,8 @@ public class MainActivity extends AppCompatActivity  {
                     public void onItemClick(AdapterView<?> parent, View view,
                                             int position, long id) {
                             String  itemValue    = (String) mTeamListView.getItemAtPosition(position);
+
+                        itemValue = itemValue.substring(0, itemValue.indexOf("[") - 1);
 
                             startMapActivity(itemValue);
                         }
@@ -951,7 +1006,7 @@ public class MainActivity extends AppCompatActivity  {
                         listItemPosition = position;
 
                         AlertDialog.Builder alert_confirm = new AlertDialog.Builder(MainActivity.this);
-                        alert_confirm.setMessage("Do you really want to delete my team : " + listItemValue).setCancelable(false).setPositiveButton("Yes",
+                        alert_confirm.setMessage("팀 삭제를 원하십니까? : " + listItemValue).setCancelable(false).setPositiveButton("Yes",
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
@@ -976,7 +1031,7 @@ public class MainActivity extends AppCompatActivity  {
                                                         || responseMsg.equals(QuickstartPreferences.TEAMS_GCM_SEND_SUCCESS)
                                                         || responseMsg.equals(QuickstartPreferences.TEAMS_REVOCE_SUCCESS)) {
 
-                                                    Toast.makeText(getApplicationContext(), "team delete success", Toast.LENGTH_SHORT).show();
+                                                    Toast.makeText(getApplicationContext(), "팀 삭제 성공", Toast.LENGTH_SHORT).show();
 
                                                     int count, checked ;
                                                     count = adapter.getCount() ;
@@ -1008,7 +1063,7 @@ public class MainActivity extends AppCompatActivity  {
 
                                                 Log.i(TAG, "errorMsg is : " + errorMsg);
 
-                                                Toast.makeText(getApplicationContext(), "team delete failed", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(getApplicationContext(), "팀 삭제 실패(오류 발생)", Toast.LENGTH_SHORT).show();
                                             }
                                         });
 
@@ -1029,7 +1084,7 @@ public class MainActivity extends AppCompatActivity  {
                 });
 
             } else {
-                Toast.makeText(getApplicationContext(), "Can't get teamid list", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "팀 목록을 가져올 수 없습니다.", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -1108,4 +1163,21 @@ public class MainActivity extends AppCompatActivity  {
 //        }
     }
 
+    private void setUserInfo() {
+
+        // 전역변수 선언
+        SharedPreferences gMemberInfo = getSharedPreferences("gMemberInfo", MODE_PRIVATE);
+        String sCallsign = gMemberInfo.getString("callsign", null);
+
+        mCallsignTextView = (TextView)  findViewById(R.id.tv_callsign_main);
+        mIconImageView    = (ImageView) findViewById(R.id.iv_icon_img);
+
+        if (sCallsign != null && sCallsign.length() > 0) {
+
+            mCallsignTextView.setText(sCallsign);
+
+            int resourceID = TeamTrackerUtils.getImgResourceID("img", gMemberInfo.getString("color", null));
+            mIconImageView.setImageResource(resourceID);
+        }
+    }
 }

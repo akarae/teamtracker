@@ -16,4 +16,13 @@
         <item>5MIN</item>
         <item>10MIN</item>
     </string-array>
+    <string name="title_activity_setup">SetupActivity</string>
+    <string name="setup_inform">
+\n
+1. CallSign은 Team내에서 자신을 식별하는 부호입니다.\n
+2. Icon을 선택하여 색상으로도 자신을 구분할 수 있습니다.\n
+3. Team은 Tracking정보를 공유할 하나의 집단입니다.\n\n
+TeamTracker는 개인정보를 필요로하지 않습니다.\n
+최소한의 입력으로 Team원들과 Tracking정보를 공유하세요!!
+    </string>
 </resources>

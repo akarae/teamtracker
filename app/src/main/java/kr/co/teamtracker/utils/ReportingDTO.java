@@ -31,6 +31,16 @@ public class ReportingDTO {
 
     private String msg;
 
+    private int teamcnt;
+
+    public int getTeamcnt() {
+        return teamcnt;
+    }
+
+    public void setTeamcnt(int teamcnt) {
+        this.teamcnt = teamcnt;
+    }
+
     public String getMsg() {
         return msg;
     }

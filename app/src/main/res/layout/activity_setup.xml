@@ -1,40 +1,187 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="fill_parent" android:layout_height="fill_parent"
-    android:id="@+id/mapsetup_layout">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="top|center"
+    android:background="@drawable/background"
+    android:weightSum="1"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
 
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:map="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/map_setup"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context="kr.co.teamtracker.SetupActivity"
-        tools:layout="@layout/abc_expanded_menu_layout" />
+    <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center"
+        android:columnCount="3"
+        android:paddingTop="20dp"
+        android:paddingBottom="10dp">
 
         <TextView
-            android:id="@+id/tv_setup_goal"
-            android:layout_width="300dp"
-            android:layout_height="30dp"
-            android:text="click the position"
-            android:textSize="14dp"
-            android:textColor="#000000"
-            android:background="@drawable/layout_rounded"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_marginTop="60dp"
-            android:paddingLeft="5dp"
-            android:gravity="center_vertical"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="■ 사용자 정보설정 및 팀관리"
+            android:id="@+id/tv_setup_comment"
+            android:textSize="16dp"
+            android:layout_weight="0.10"
+            android:padding="2dp"
+            android:textColor="@color/colorPrimaryDark"
+            android:layout_columnSpan="3"
+            />
 
-        <Button android:id="@+id/btn_setup_goal"
+        <android.support.v4.widget.Space
+            android:layout_height="15dp"
+            />
+
+        <android.support.v4.widget.Space
+            android:layout_height="15dp"
+            />
+
+        <android.support.v4.widget.Space
+            android:layout_height="15dp"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CallSign과 아이콘"
+            android:id="@+id/tv_callsign_title"
+            android:textSize="16dp"
+            android:layout_weight="0.10"
+            android:padding="2dp"
+            android:textColor="@color/colorPrimaryDark"
+            android:layout_columnSpan="3"
+            />
+
+        <EditText
+            android:layout_width="90dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/et_callsign"
+            android:singleLine="true"
+            android:background="#ffffff"
+            android:maxLength="6"
+            android:textSize="16dp"
+            android:hint="ex) rae"
+            android:inputType="text"
+            android:digits="abcdefghijklmnopqrstuvwxyz0123456789"
+            android:padding="2dp" />
+
+        <Spinner
+            android:layout_width="50dp"
+            android:layout_height="30dp"
+            android:id="@+id/sp_color"
+            android:spinnerMode="dropdown"
+            android:layout_gravity="center"
+            android:layout_marginRight="10dp"/>
+
+        <Button android:id="@+id/btn_registration"
             android:layout_width="60dp"
             android:layout_height="30dp"
-            android:text="APPLY"
-            android:textColor="#FFFFFF"
+            android:text="적용"
             android:background="@drawable/button_rounded"
-            android:layout_toRightOf="@+id/tv_setup_goal"
-            android:layout_marginTop="60dp"/>
+            android:layout_gravity="center" />
 
-</RelativeLayout>
+        <android.support.v4.widget.Space
+            android:layout_height="10dp"
+            />
+
+        <android.support.v4.widget.Space
+            android:layout_height="10dp"
+            />
+
+        <android.support.v4.widget.Space
+            android:layout_height="10dp"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Team생성"
+            android:id="@+id/tv_maketeamid"
+            android:textSize="16dp"
+            android:padding="2dp"
+            android:textColor="@color/colorPrimaryDark"
+            android:layout_columnSpan="3"
+            />
+
+        <EditText
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/et_maketeamid"
+            android:singleLine="true"
+            android:background="#ffffff"
+            android:layout_weight="1"
+            android:maxLength="10"
+            android:textSize="16dp"
+            android:padding="2dp"
+            android:hint="Team아이디(영문)"
+            android:digits="abcdefghijklmnopqrstuvwxyz0123456789"
+            android:layout_columnSpan="2"/>
+
+        <Button android:id="@+id/btn_teammake"
+            android:layout_width="60dp"
+            android:layout_height="30dp"
+            android:text="생성"
+            android:background="@drawable/button_rounded"
+            android:layout_gravity="center" />
+
+        <android.support.v4.widget.Space
+            android:layout_height="10dp"
+            />
+
+        <android.support.v4.widget.Space
+            android:layout_height="10dp"
+            />
+
+        <android.support.v4.widget.Space
+            android:layout_height="10dp"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Team참가"
+            android:id="@+id/tv_teamid"
+            android:textSize="16dp"
+            android:padding="2dp"
+            android:textColor="@color/colorPrimaryDark"
+            android:layout_columnSpan="3"
+            />
+
+        <EditText
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/et_teamid"
+            android:singleLine="true"
+            android:background="#ffffff"
+            android:layout_weight="1"
+            android:maxLength="10"
+            android:textSize="16dp"
+            android:padding="2dp"
+            android:hint="Team아이디(영문)"
+            android:digits="abcdefghijklmnopqrstuvwxyz0123456789"
+            android:layout_columnSpan="2"/>
+
+        <Button android:id="@+id/btn_teamjoin"
+            android:layout_width="60dp"
+            android:layout_height="30dp"
+            android:text="참가"
+            android:background="@drawable/button_rounded"
+            android:layout_gravity="center" />
+
+    </GridLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/setup_inform"
+        android:id="@+id/tv_setup_inform"
+        android:textSize="13dp"
+        android:layout_weight="0.10"
+        android:padding="2dp"
+        android:lineSpacingExtra="10dp"
+        android:textColor="@color/common_plus_signin_btn_text_light"
+        android:layout_gravity="center_horizontal" />
+
+
+</LinearLayout>

@@ -13,49 +13,41 @@
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_gravity="top|center"
-        android:columnCount="4"
+        android:columnCount="3"
         android:paddingTop="20dp"
         android:paddingBottom="10dp">
 
+
+        <ImageView
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:layout_gravity="center"
+            android:id="@+id/iv_icon_img"
+            android:background="@drawable/c_06ff00" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="CALLSIGN "
-            android:id="@+id/tv_callsign"
+            android:text="-"
+            android:id="@+id/tv_callsign_main"
+            android:textSize="16dp"
+            android:layout_weight="0.10"
+            android:layout_marginLeft="10dp"
+            android:padding="2dp"
+            android:textColor="@color/colorPrimaryDark"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="님 "
+            android:id="@+id/tv_callsign_footer"
             android:textSize="16dp"
             android:layout_weight="0.10"
             android:padding="2dp"
             android:textColor="@color/colorPrimaryDark"
             />
 
-        <EditText
-            android:layout_width="90dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/et_callsign"
-            android:singleLine="true"
-            android:background="#ffffff"
-            android:maxLength="6"
-            android:textSize="16dp"
-            android:hint="ex) rae"
-            android:inputType="text"
-            android:digits="abcdefghijklmnopqrstuvwxyz0123456789"
-            android:padding="2dp" />
-
-        <Spinner
-            android:layout_width="50dp"
-            android:layout_height="30dp"
-            android:id="@+id/sp_color"
-            android:spinnerMode="dropdown"
-            android:layout_gravity="center"
-            android:layout_marginRight="10dp"/>
-
-        <Button android:id="@+id/btn_registration"
-            android:layout_width="60dp"
-            android:layout_height="30dp"
-            android:text="APPLY"
-            android:background="@drawable/button_rounded"
-            android:layout_gravity="center" />
-
         <android.support.v4.widget.Space
             android:layout_height="3dp"
             />
@@ -67,84 +59,6 @@
         <android.support.v4.widget.Space
             android:layout_height="3dp"
             />
-
-        <android.support.v4.widget.Space
-            android:layout_height="3dp"
-            />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="TEAM "
-            android:id="@+id/tv_teamid"
-            android:textSize="16dp"
-            android:padding="2dp"
-            android:textColor="@color/colorPrimaryDark"
-            />
-
-        <EditText
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/et_teamid"
-            android:singleLine="true"
-            android:background="#ffffff"
-            android:layout_weight="1"
-            android:maxLength="10"
-            android:textSize="16dp"
-            android:padding="2dp"
-            android:hint="ex) myteam"
-            android:digits="abcdefghijklmnopqrstuvwxyz0123456789"
-            android:layout_columnSpan="2"/>
-
-        <Button android:id="@+id/btn_teamjoin"
-            android:layout_width="60dp"
-            android:layout_height="30dp"
-            android:text="JOIN"
-            android:background="@drawable/button_rounded"
-            android:layout_gravity="center" />
-<!--
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="STATUS"
-            android:id="@+id/tv_status"
-            android:textSize="16dp"
-            android:layout_weight="0.10"
-            android:padding="3dp"
-            android:layout_columnSpan="2"
-            android:textColor="@color/colorPrimaryDark"
-            android:layout_gravity="center"
-            />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="INTERVAL"
-            android:id="@+id/tv_interval"
-            android:textSize="16dp"
-            android:layout_weight="0.10"
-            android:padding="3dp"
-            android:layout_columnSpan="2"
-            android:textColor="@color/colorPrimaryDark"
-            android:layout_gravity="center"
-            />
-
-        <Spinner
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/sp_status"
-            android:spinnerMode="dropdown"
-            android:layout_columnSpan="2"
-            android:layout_gravity="center" />
-
-        <Spinner
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/sp_interval"
-            android:spinnerMode="dropdown"
-            android:layout_columnSpan="2"
-            android:layout_gravity="center" />
-            -->
     </GridLayout>
 
     <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -157,7 +71,7 @@
         <Button
             android:layout_width="90dp"
             android:layout_height="30dp"
-            android:text="▶START"
+            android:text="▶시작"
             android:textColor="#FFFFFF"
             android:id="@+id/btn_startservice"
             android:background="@drawable/button_rounded"
@@ -166,7 +80,7 @@
         <Button
             android:layout_width="90dp"
             android:layout_height="30dp"
-            android:text="■STOP"
+            android:text="■종료"
             android:textColor="#FFFFFF"
             android:id="@+id/btn_stopservice"
             android:background="@drawable/button_rounded"
@@ -175,7 +89,7 @@
         <Button
             android:layout_width="90dp"
             android:layout_height="30dp"
-            android:text="↕LIST"
+            android:text="↕리스트"
             android:textColor="#FFFFFF"
             android:id="@+id/btn_teamlist"
             android:background="@drawable/button_rounded" />
@@ -199,7 +113,7 @@
         <TextView
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:text="TEAM LIST"
+            android:text="TEAM 리스트"
             android:textColor="@color/colorPrimaryDark"
             android:textSize="16dp"
             android:id="@+id/tv_myteamlist"
